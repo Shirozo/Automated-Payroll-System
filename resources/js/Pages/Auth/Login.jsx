@@ -31,7 +31,10 @@ export default function Login({ status, canResetPassword }) {
                 </div>
             )}
 
-            <form onSubmit={submit} className="p-4">
+            <h1 className='text-2xl font-bold'>Login</h1>
+            <p className='text-gray-500'>Enter your credentials to access your account</p>
+            
+            <form onSubmit={submit} className='mt-4'>
                 <div>
                     <InputLabel htmlFor="username" value="Username" />
 
