@@ -1,4 +1,5 @@
 import Card, { CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/Card';
+import  Overview  from '@/Components/Overview';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import { ArrowUpRight, User } from 'lucide-react';
@@ -94,6 +95,7 @@ export default function Dashboard() {
                             </CardHeader>
                             <CardContent className='pl-2'>
                                 {/* Overview Here */}
+                                <Overview />
                             </CardContent>
                         </Card>
                         <Card className='col-span-3 border-0 shadow-sm'>
