@@ -6,13 +6,7 @@ import { ArrowUpRight, User } from 'lucide-react';
 
 export default function Dashboard() {
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Dashboard Overview
-                </h2>
-            }
-        >
+        <AuthenticatedLayout>
             <Head title="Dashboard" />
 
             <div className="py-4">
@@ -28,9 +22,7 @@ export default function Dashboard() {
                             <CardContent>
                                 <div className='text-2xl font-bold'>200</div>
                                 <div className='flex items-center text-xs text-gray-500 mt-1'>
-                                    <ArrowUpRight className='h-3 w-3 text-emerald-600 mt-1' />
-                                    <span className='text-emerald-600 font-medium'>+12 </span>
-                                    <span className='ml-1'>from last month</span>
+                                
                                 </div>
                             </CardContent>
                         </Card>
@@ -45,9 +37,6 @@ export default function Dashboard() {
                             <CardContent>
                                 <div className='text-2xl font-bold'>200</div>
                                 <div className='flex items-center text-xs text-gray-500 mt-1'>
-                                    <ArrowUpRight className='h-3 w-3 text-emerald-600 mt-1' />
-                                    <span className='text-emerald-600 font-medium'>+12 </span>
-                                    <span className='ml-1'>from last month</span>
                                 </div>
                             </CardContent>
                         </Card>
@@ -62,9 +51,6 @@ export default function Dashboard() {
                             <CardContent>
                                 <div className='text-2xl font-bold'>200</div>
                                 <div className='flex items-center text-xs text-gray-500 mt-1'>
-                                    <ArrowUpRight className='h-3 w-3 text-emerald-600 mt-1' />
-                                    <span className='text-emerald-600 font-medium'>+12 </span>
-                                    <span className='ml-1'>from last month</span>
                                 </div>
                             </CardContent>
                         </Card>
@@ -79,9 +65,6 @@ export default function Dashboard() {
                             <CardContent>
                                 <div className='text-2xl font-bold'>200</div>
                                 <div className='flex items-center text-xs text-gray-500 mt-1'>
-                                    <ArrowUpRight className='h-3 w-3 text-emerald-600 mt-1' />
-                                    <span className='text-emerald-600 font-medium'>+12 </span>
-                                    <span className='ml-1'>from last month</span>
                                 </div>
                             </CardContent>
                         </Card>
@@ -100,7 +83,7 @@ export default function Dashboard() {
                         </Card>
                         <Card className='col-span-3 border-0 shadow-sm'>
                             <CardHeader className='flex-col'>
-                                <CardTitle>Revenue Payroll</CardTitle>
+                                <CardTitle>Recent Payroll</CardTitle>
                                 <CardDescription>Latest processed employee payments</CardDescription>
                             </CardHeader>
                             <CardContent>
