@@ -36,6 +36,8 @@ Route::group(["prefix" => "position", "as" => "position.", "middleware" => ["aut
     Route::get("/", [PositionController::class, "show"])->name("show");
 
     Route::post('/store', [PositionController::class, "store"])->name("store");
+
+    Route::delete("/delete/id/{position}", [PositionController::class, "destroy"])->name("destroy");
 });
 
 require __DIR__.'/auth.php';
