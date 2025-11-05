@@ -34,6 +34,8 @@ Route::group(["prefix" => "employee", "as" => "employee.", "middleware" => ["aut
 Route::group(["prefix" => "position", "as" => "position.", "middleware" => ["auth"]], function() {
     
     Route::get("/", [PositionController::class, "show"])->name("show");
+
+    Route::post('/store', [PositionController::class, "store"])->name("store");
 });
 
 require __DIR__.'/auth.php';
