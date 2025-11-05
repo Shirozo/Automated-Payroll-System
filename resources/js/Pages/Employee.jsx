@@ -4,13 +4,16 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import AddUserForm from '@/form/AddUserForm';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { Edit, Plus, Search, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import DataTable from 'react-data-table-component';
 
 
 export default function Employee() {
+
+    const { positions } = usePage().props
+
     const initialEmployees = [
         {
             id: "1",
@@ -290,7 +293,10 @@ export default function Employee() {
 
 
             <Modal show={isFormOpen} maxWidth='6xl'>
-                <AddUserForm closeModal={() => setIsFormOpen(false)}/>
+                <AddUserForm
+                    closeModal={() => setIsFormOpen(false)}
+                    positions={positions}
+                />
             </Modal>
         </AuthenticatedLayout>
     );
