@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePositionRequest;
 use App\Http\Requests\UpdatePositionRequest;
 use App\Models\Position;
+use Illuminate\Http\Request;
 
 class PositionController extends Controller
 {
@@ -56,8 +57,18 @@ class PositionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Position $position)
+    public function destroy(Request $request, Position $position)
     {
-        //
+        $request->validate([
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $position->delete();
+
+        return redirect()->route("position.show")->with([
+            "success" => "Position Deleted!",
+        ]);
+
+
     }
 }
