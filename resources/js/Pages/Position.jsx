@@ -9,6 +9,7 @@ import { Edit, Plus, Search, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import { ToastContainer, toast } from 'react-toastify';
+import DeletePositionForm from '@/form/DeletePositionForm';
 
 
 export default function Position({ flash }) {
@@ -17,7 +18,9 @@ export default function Position({ flash }) {
     const [position, setPosition] = useState(positions)
     const [searchTerm, setSearchTerm] = useState("")
     const [isFormOpen, setIsFormOpen] = useState(false)
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false)
     const [editingId, setEditingId] = useState(null)
+    const [deleteId, setDeleteId] = useState(null)
     const [sortBy, setSortBy] = useState("name")
 
 
@@ -26,12 +29,14 @@ export default function Position({ flash }) {
     }
 
     const handleDelete = (id) => {
+        setDeleteId(id)
+        setIsDeleteOpen(true)
     }
 
     const updatePos = (newPosition) => {
-        console.log(newPosition)
         setPosition(newPosition)
         setIsFormOpen(false)
+        setIsDeleteOpen(false)
     }
 
     const filteredPosition = useMemo(() => {
@@ -210,6 +215,17 @@ export default function Position({ flash }) {
                     onAddSuccess={updatePos}
                 />
             </Modal>
+
+            <Modal show={isDeleteOpen} maxWidth='2xl'>
+                <DeletePositionForm
+                    id={deleteId}
+                    closeModal={() => setIsDeleteOpen(false)}
+                    onDelSuccess={updatePos}
+                />
+            </Modal>
+
+
+
         </AuthenticatedLayout>
     );
 }
