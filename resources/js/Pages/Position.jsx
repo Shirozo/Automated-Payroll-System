@@ -2,32 +2,17 @@ import Card, { CardContent, CardDescription, CardHeader, CardTitle } from '@/Com
 import Modal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
-import AddUserForm from '@/form/AddUserForm';
+import AddPositionForm from '@/form/AddPositionForm';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { Edit, Plus, Search, Trash2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import DataTable from 'react-data-table-component';
+import { ToastContainer, toast } from 'react-toastify';
 
 
-export default function Position() {
-    const positions = [
-        {
-            id: "1",
-            name: "Professor I",
-            salary: "10000",
-        },
-        {
-            id: "2",
-            name: "Professor II",
-            salary: "20000",
-        },
-        {
-            id: "3",
-            name: "Professor III",
-            salary: "30000",
-        },
-    ]
+export default function Position({ flash }) {
+    const { positions } = usePage().props
 
     const [position, setPosition] = useState(positions)
     const [searchTerm, setSearchTerm] = useState("")
@@ -42,7 +27,13 @@ export default function Position() {
 
     const handleDelete = (id) => {
     }
-    
+
+    const updatePos = (newPosition) => {
+        console.log(newPosition)
+        setPosition(newPosition)
+        setIsFormOpen(false)
+    }
+
     const filteredPosition = useMemo(() => {
         return position.filter(
             (emp) =>
@@ -55,11 +46,22 @@ export default function Position() {
         const sorted = [...filteredPosition]
         if (sortBy === "name") {
             sorted.sort((a, b) => a.name.localeCompare(b.name))
-        }else if (sortBy === "salary") {
+        } else if (sortBy === "salary") {
             sorted.sort((a, b) => b.salary - a.salary)
         }
         return sorted
     }, [filteredPosition, sortBy])
+
+    useEffect(() => {
+        if (flash.message.success) {
+            toast.success(flash.message.success)
+        }
+
+        if (flash.message.error) {
+            toast.error(flash.message.error)
+        }
+    }, [flash])
+
 
 
     const columns = [
@@ -138,16 +140,17 @@ export default function Position() {
     return (
         <AuthenticatedLayout>
             <Head title="Employee" />
+            <ToastContainer />
             <header className="border-b border-border bg-white">
                 <div className="mx-auto px-8 py-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold text-foreground">Employee Management</h1>
-                            <p className="mt-2 text-sm text-muted-foreground">View, add, and manage employee records</p>
+                            <h1 className="text-3xl font-bold text-foreground">Position Management</h1>
+                            <p className="mt-2 text-sm text-muted-foreground">View, add, and manage position records</p>
                         </div>
                         <PrimaryButton onClick={() => setIsFormOpen(true)} className="gap-2">
                             <Plus className="h-4 w-4" />
-                            Add Employee
+                            Add Position
                         </PrimaryButton>
                     </div>
                 </div>
@@ -201,8 +204,11 @@ export default function Position() {
             </main>
 
 
-            <Modal show={isFormOpen} maxWidth='6xl'>
-                <AddUserForm closeModal={() => setIsFormOpen(false)} />
+            <Modal show={isFormOpen} maxWidth='2xl'>
+                <AddPositionForm
+                    closeModal={() => setIsFormOpen(false)}
+                    onAddSuccess={updatePos}
+                />
             </Modal>
         </AuthenticatedLayout>
     );
