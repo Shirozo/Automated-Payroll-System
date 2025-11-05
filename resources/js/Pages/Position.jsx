@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import { ToastContainer, toast } from 'react-toastify';
 import DeletePositionForm from '@/form/DeletePositionForm';
+import EditPositionForm from '@/form/EditPositionForm';
 
 
 export default function Position({ flash }) {
@@ -19,13 +20,15 @@ export default function Position({ flash }) {
     const [searchTerm, setSearchTerm] = useState("")
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
-    const [editingId, setEditingId] = useState(null)
+    const [isEditOpen, setIsEditOpen] = useState(false)
+    const [editingData, setEditingData] = useState(null)
     const [deleteId, setDeleteId] = useState(null)
     const [sortBy, setSortBy] = useState("name")
 
 
-    const handleEditClick = (employee) => {
-
+    const handleEditClick = (position) => {
+        setEditingData(position)
+        setIsEditOpen(true)
     }
 
     const handleDelete = (id) => {
@@ -37,6 +40,7 @@ export default function Position({ flash }) {
         setPosition(newPosition)
         setIsFormOpen(false)
         setIsDeleteOpen(false)
+        setIsEditOpen(false)
     }
 
     const filteredPosition = useMemo(() => {
@@ -221,6 +225,14 @@ export default function Position({ flash }) {
                     id={deleteId}
                     closeModal={() => setIsDeleteOpen(false)}
                     onDelSuccess={updatePos}
+                />
+            </Modal>
+
+             <Modal show={isEditOpen} maxWidth='2xl'>
+                <EditPositionForm
+                    data={editingData}
+                    closeModal={() => setIsEditOpen(false)}
+                    onEditSuccess={updatePos}
                 />
             </Modal>
 
