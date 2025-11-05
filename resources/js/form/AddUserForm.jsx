@@ -6,7 +6,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 
 
-export default function AddUserForm({ closeModal }) {
+export default function AddUserForm({ closeModal, positions }) {
     const {
         data: addData,
         setData: setAddData,
@@ -42,6 +42,7 @@ export default function AddUserForm({ closeModal }) {
     }
 
     const posChange = (e) => {
+        setAddData("position", e.target.value)
         const salary = parseInt(e.target.value)
         const philhealth = salary * 0.05 / 2
         const retirement = salary * 0.09
@@ -101,9 +102,9 @@ export default function AddUserForm({ closeModal }) {
                         required={true}
                     >
                         <option value="">Select Type</option>
-                        <option value="10000">Admin</option>
-                        <option value="20000">Doctor</option>
-                        <option value="30000">Front Desk</option>
+                        {positions.map((p) => (
+                            <option value={p.salary}>{p.name}</option>
+                        ))}
                     </select>
 
                     <InputError
