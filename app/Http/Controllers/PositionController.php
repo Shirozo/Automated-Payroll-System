@@ -14,6 +14,15 @@ class PositionController extends Controller
     public function store(StorePositionRequest $request)
     {
         //
+        $request->validated();
+
+        $pos = Position::create($request->validated());
+
+        return redirect()->route("position.show")->with([
+            "success" => "Position Created!",
+            "position" => $pos
+        ]);
+
     }
 
     /**
@@ -22,7 +31,10 @@ class PositionController extends Controller
     public function show(Position $position)
     {
         //
-        return inertia("Position");
+        $positions = Position::all();
+        return inertia("Position", [
+            "positions" => $positions
+        ]);
     }
 
     /**
