@@ -37,6 +37,8 @@ Route::group(["prefix" => "position", "as" => "position.", "middleware" => ["aut
 
     Route::post('/store', [PositionController::class, "store"])->name("store");
 
+    Route::put("/update/id/{position}", [PositionController::class, "update"])->name("update");
+
     Route::delete("/delete/id/{position}", [PositionController::class, "destroy"])->name("destroy");
 });
 
