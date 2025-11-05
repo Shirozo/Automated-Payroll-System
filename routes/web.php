@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,11 @@ Route::middleware('auth')->group(function () {
 Route::group(["prefix" => "employee", "as" => "employee.", "middleware" => ["auth"]], function() {
     
     Route::get("/", [EmployeeController::class, "show"])->name("show");
+});
+
+Route::group(["prefix" => "position", "as" => "position.", "middleware" => ["auth"]], function() {
+    
+    Route::get("/", [PositionController::class, "show"])->name("show");
 });
 
 require __DIR__.'/auth.php';
