@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use App\Models\Employee;
+use App\Models\Position;
 
 class EmployeeController extends Controller
 {
@@ -22,7 +23,10 @@ class EmployeeController extends Controller
     public function show(Employee $employee)
     {
         //
-        return inertia("Employee");
+        $positions = Position::all();
+        return inertia("Employee", [
+            "positions" => $positions
+        ]);
     }
 
     /**
