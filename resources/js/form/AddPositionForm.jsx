@@ -23,8 +23,8 @@ export default function AddPositionForm({ closeModal, onAddSuccess }) {
     const submit = (e) => {
         e.preventDefault()
         post(route("position.store"), {
-            onSuccess : (page) => {
-                console.log(page.props.positions)
+            preserveScroll: true,
+            onSuccess: (page) => {
                 onAddSuccess(page.props.positions)
                 addReset()
             }
@@ -34,7 +34,7 @@ export default function AddPositionForm({ closeModal, onAddSuccess }) {
     return <>
         <form className="p-6" onSubmit={submit}>
             <h2 className="text-2xl uppercase mb-5 font-medium text-gray-900">
-                Add New Employee
+                Add New Position
             </h2>
 
             <div className="mt-6">
