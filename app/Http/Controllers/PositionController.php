@@ -52,6 +52,16 @@ class PositionController extends Controller
     public function update(UpdatePositionRequest $request, Position $position)
     {
         //
+        $request->validated();
+
+        $position->update([
+            "name" => $request->name,
+            "salary" => $request->salary
+        ]);
+
+        return redirect()->route("position.show")->with([
+            "success" => "Position Updated!",
+        ]);
     }
 
     /**
