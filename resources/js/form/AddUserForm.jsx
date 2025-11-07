@@ -19,38 +19,19 @@ export default function AddUserForm({ closeModal, positions }) {
         position: "",
         employee_number: "",
         rate_per_month: "",
-        pera: 2000,
         gsis: 0,
-        philhealth: 0,
-        local_pave: 40,
-        retirement: 0,
-        pag_ibig_premium: 200,
         pag_ibig_mp3: 0,
         pag_ibig_calamity: 0,
         city_savings: 0,
         withholding_tax: 0,
         igp_rental: 0,
-        essu_ffa: 20,
         retiree_fin_asst: 0,
-        essu_union: 30,
         cfi: 0,
     })
 
 
     const submit = (e) => {
         e.preventDefault()
-    }
-
-    const posChange = (e) => {
-        setAddData("position", e.target.value)
-        const salary = parseInt(e.target.value)
-        const philhealth = salary * 0.05 / 2
-        const retirement = salary * 0.09
-        const retirement_fin_asst = (Math.round(((salary / 30 / 2) + (salary / 30) + (salary / 30 / 4)) / 10) * 10).toFixed(2)
-        setAddData("rate_per_month", salary)
-        setAddData("philhealth", philhealth)
-        setAddData("retirement", retirement)
-        setAddData("retiree_fin_asst", retirement_fin_asst)
     }
 
     return <>
@@ -97,7 +78,7 @@ export default function AddUserForm({ closeModal, positions }) {
                         name="position"
                         className="mt-1 block w-full focus:border-green-300 outline-green-300 rounded-md border-gray-300 shadow-sm"
                         value={addData.position}
-                        onChange={posChange}
+                        onChange={(e) => setAddData("position", e.target.value)}
                         placeholder="Position"
                         required={true}
                     >
@@ -142,68 +123,6 @@ export default function AddUserForm({ closeModal, positions }) {
                 </div>
             </div>
 
-
-            <h6 className="text-xl uppercase mt-6 mb-2 font-medium text-gray-900">
-                Compensation
-            </h6>
-
-
-            <div className='flex gap-5'>
-                <div className="w-1/3">
-                    <InputLabel
-                        htmlFor="rate_per_month"
-                        value="Rate per Month"
-                    />
-
-                    <TextInput
-                        id="rate_per_month"
-                        type="number"
-                        step={1}
-                        name="rate_per_month"
-                        readOnly
-                        className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.rate_per_month}
-                        onChange={(e) => {
-                            setAddData('rate_per_month', e.target.value)
-                        }}
-                        placeholder="Rate per Month"
-                        required={true}
-                    />
-
-                    <InputError
-                        message={addErrors.rate_per_month}
-                        className="mt-2"
-                    />
-                </div>
-
-                <div className="w-1/3">
-                    <InputLabel
-                        htmlFor="pera"
-                        value="PERA"
-                    />
-
-                    <TextInput
-                        id="pera"
-                        type="text"
-                        name="pera"
-                        className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.pera}
-                        readOnly={true}
-                        onChange={(e) => {
-                            setAddData('pera', e.target.value)
-                        }}
-                        placeholder="PERA"
-                        required={true}
-                    />
-
-                    <InputError
-                        message={addErrors.pera}
-                        className="mt-2"
-                    />
-                </div>
-            </div>
-
-
             <h6 className="text-xl uppercase mt-6 mb-2 font-medium text-gray-900">
                 Deduction
             </h6>
@@ -236,107 +155,6 @@ export default function AddUserForm({ closeModal, positions }) {
                     />
                 </div>
 
-                {/* TODO: Use Calculation */}
-                <div className="w-1/3">
-                    <InputLabel
-                        htmlFor="philhealth"
-                        value="Phil. Health"
-                    />
-
-                    <TextInput
-                        id="philhealth"
-                        type="number"
-                        name="philhealth"
-                        className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.philhealth}
-                        placeholder="Phil. Health"
-                        required={true}
-                        readOnly={true}
-                    />
-
-                    <InputError
-                        message={addErrors.philhealth}
-                        className="mt-2"
-                    />
-                </div>
-
-                <div className="w-1/3">
-                    <InputLabel
-                        htmlFor="local_pave"
-                        value="Local Pave"
-                    />
-
-                    <TextInput
-                        id="local_pave"
-                        type="number"
-                        name="local_pave"
-                        className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.local_pave}
-                        readOnly={true}
-                        onChange={(e) => {
-                            setAddData('local_pave', e.target.value)
-                        }}
-                        placeholder="Local Pave"
-                        required={true}
-                    />
-
-                    <InputError
-                        message={addErrors.local_pave}
-                        className="mt-2"
-                    />
-                </div>
-            </div>
-
-            <div className='flex gap-5 mt-3'>
-                {/* TODO: Use Calculation */}
-                <div className="w-1/3">
-                    <InputLabel
-                        htmlFor="retirement"
-                        value="Life & Retirement"
-                    />
-
-                    <TextInput
-                        id="retirement"
-                        type="number"
-                        step={1}
-                        min={0}
-                        name="retirement"
-                        className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.retirement}
-                        readOnly={true}
-                        placeholder="Life & Retirement"
-                    />
-
-                    <InputError
-                        message={addErrors.retirement}
-                        className="mt-2"
-                    />
-                </div>
-
-                {/* TODO: Use Calculation */}
-                <div className="w-1/3">
-                    <InputLabel
-                        htmlFor="pag_ibig_premium"
-                        value="PAG-IBIG Premium"
-                    />
-
-                    <TextInput
-                        id="pag_ibig_premium"
-                        type="number"
-                        name="pag_ibig_premium"
-                        className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.pag_ibig_premium}
-                        placeholder="PAG-IBIG Premium"
-                        required={true}
-                        readOnly={true}
-                    />
-
-                    <InputError
-                        message={addErrors.pag_ibig_premium}
-                        className="mt-2"
-                    />
-                </div>
-
                 <div className="w-1/3">
                     <InputLabel
                         htmlFor="pag_ibig_mp3"
@@ -360,10 +178,7 @@ export default function AddUserForm({ closeModal, positions }) {
                         className="mt-2"
                     />
                 </div>
-            </div>
 
-            <div className='flex gap-5 mt-3'>
-                {/* TODO: Use Calculation */}
                 <div className="w-1/3">
                     <InputLabel
                         htmlFor="pag_ibig_calamity"
@@ -390,7 +205,10 @@ export default function AddUserForm({ closeModal, positions }) {
                     />
                 </div>
 
-                {/* TODO: Use Calculation */}
+            </div>
+
+            <div className='flex gap-5 mt-3'>
+
                 <div className="w-1/3">
                     <InputLabel
                         htmlFor="city_savings"
@@ -438,10 +256,7 @@ export default function AddUserForm({ closeModal, positions }) {
                         className="mt-2"
                     />
                 </div>
-            </div>
 
-            <div className='flex gap-5 mt-3'>
-                {/* TODO: Use Calculation */}
                 <div className="w-1/3">
                     <InputLabel
                         htmlFor="igp_rental"
@@ -467,76 +282,9 @@ export default function AddUserForm({ closeModal, positions }) {
                         className="mt-2"
                     />
                 </div>
-
-                <div className="w-1/3">
-                    <InputLabel
-                        htmlFor="essu_ffa"
-                        value="ESSU FFA"
-                    />
-
-                    <TextInput
-                        id="essu_ffa"
-                        type="number"
-                        name="essu_ffa"
-                        className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.essu_ffa}
-                        placeholder="ESSU FFA"
-                        readOnly={true}
-                    />
-
-                    <InputError
-                        message={addErrors.essu_ffa}
-                        className="mt-2"
-                    />
-                </div>
-
-                {/* TODO: Use Calculation */}
-                <div className="w-1/3">
-                    <InputLabel
-                        htmlFor="retiree_fin_asst"
-                        value="Retiree Fin. Asst."
-                    />
-
-                    <TextInput
-                        id="retiree_fin_asst"
-                        type="number"
-                        name="retiree_fin_asst"
-                        className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.retiree_fin_asst}
-                        readOnly={true}
-                        placeholder="Retiree Fin. Asst."
-                    />
-
-                    <InputError
-                        message={addErrors.retiree_fin_asst}
-                        className="mt-2"
-                    />
-                </div>
             </div>
-
+            
             <div className='flex gap-5 mt-3'>
-
-                <div className="w-1/3">
-                    <InputLabel
-                        htmlFor="essu_union"
-                        value="ESSU Union"
-                    />
-
-                    <TextInput
-                        id="essu_union"
-                        type="number"
-                        name="essu_union"
-                        className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.essu_union}
-                        readOnly={true}
-                        placeholder="ESSU Union"
-                    />
-
-                    <InputError
-                        message={addErrors.essu_union}
-                        className="mt-2"
-                    />
-                </div>
 
                 <div className="w-1/3">
                     <InputLabel
