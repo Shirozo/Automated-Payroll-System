@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ConfigurationController;
+use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
@@ -43,9 +44,16 @@ Route::group(["prefix" => "position", "as" => "position.", "middleware" => ["aut
     Route::delete("/delete/id/{position}", [PositionController::class, "destroy"])->name("destroy");
 });
 
-Route::group(["prefix" => "configuration/", "as" => "configuration.", "middleware" => ["auth"]], function() {
+Route::group(["prefix" => "configuration", "as" => "configuration.", "middleware" => ["auth"]], function() {
 
     Route::get('/', [ConfigurationController::class, "show"])->name("show");
+});
+
+Route::group(["prefix" => "device", "as" => "device.", "middleware" => ['auth']], function() {
+
+    Route::post('/register', [DeviceController::class, "register"])->name("register");
+
+    Route::get("/online", [DeviceController::class, "online"])->name("online");
 });
 
 require __DIR__.'/auth.php';
