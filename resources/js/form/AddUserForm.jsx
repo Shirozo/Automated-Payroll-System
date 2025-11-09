@@ -4,6 +4,9 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
+import { useEffect, useState } from "react";
+import { RefreshCcwIcon } from "lucide-react";
+import { toast, ToastContainer } from "react-toastify";
 
 
 export default function AddUserForm({ closeModal, positions }) {
@@ -18,6 +21,7 @@ export default function AddUserForm({ closeModal, positions }) {
         name: "",
         position: "",
         employee_number: "",
+        fingerprint: "",
         rate_per_month: "",
         gsis: 0,
         pag_ibig_mp3: 0,
@@ -29,12 +33,88 @@ export default function AddUserForm({ closeModal, positions }) {
         cfi: 0,
     })
 
+    const [device, setDevice] = useState("")
+    const [availableDevices, setAvailableDevices] = useState([])
+    const [loadingDevices, setLoadingDevices] = useState(false)
+    const [loadingFingerprint, setLoadingFingerprint] = useState(false)
+
+    useEffect(() => {
+        fetchDevices()
+    }, [])
+
+    const connect = async () => {
+        if (!device) {
+            toast.error("Please select a device!")
+            return
+        }
+
+        setLoadingFingerprint(true)
+        setLoadingDevices(true)
+
+        try {
+            const response = await fetch(`http://${device}/scan`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    command: "scan_fingerprint",
+                    message: "Please Place your fingerprint."
+                })
+            })
+
+            if (!response.ok) {
+                toast.error("Please connect to another device!")
+                return
+            }
+
+            const data = await response.json()
+
+            if (data.success && data.fingerprint) {
+                setAddData("fingerprint", data.fingerprint)
+                console.log(data.fingerprint)
+            } else {
+                toast.error("Failed to capture fingerprint!")
+            }
+
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setLoadingFingerprint(false)
+            setLoadingDevices(false)
+        }
+
+
+
+    }
+
+
+
+    const fetchDevices = async () => {
+        setLoadingDevices(true)
+        try {
+            const response = await fetch('http://localhost:8000/device/online', {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            const data = await response.json()
+            setAvailableDevices(data.devices || [])
+        } catch (error) {
+            console.error('Failed to fetch devices:', error)
+        } finally {
+            setLoadingDevices(false)
+        }
+    }
+
+
 
     const submit = (e) => {
         e.preventDefault()
     }
 
     return <>
+        <ToastContainer />
         <form className="p-6" onSubmit={submit}>
             <h2 className="text-2xl uppercase mb-5 font-medium text-gray-900">
                 Add New Employee
@@ -283,7 +363,7 @@ export default function AddUserForm({ closeModal, positions }) {
                     />
                 </div>
             </div>
-            
+
             <div className='flex gap-5 mt-3'>
 
                 <div className="w-1/3">
@@ -310,6 +390,70 @@ export default function AddUserForm({ closeModal, positions }) {
                         message={addErrors.cfi}
                         className="mt-2"
                     />
+                </div>
+            </div>
+
+
+
+            <h6 className="text-xl uppercase mt-6 mb-2 font-medium text-gray-900">
+                Fingerprint
+            </h6>
+
+            <div className="w-full flex gap-3">
+                <div className="w-1/2">
+                    <InputLabel
+                        htmlFor="device"
+                        value="Device"
+                    />
+
+                    <div className="flex gap-3">
+                        <select
+                            id="device"
+                            name="device"
+                            className="mt-1 block w-full focus:border-green-300 outline-green-300 rounded-md border-gray-300 shadow-sm"
+                            value={device}
+                            disabled={loadingDevices}
+                            onChange={(e) => setDevice(e.target.value)}
+                            placeholder="Device"
+                            required={true}
+                        >
+                            <option value="">
+                                {loadingDevices ? 'Loading devices...' : 'Select Available Device'}
+                            </option>
+                            {availableDevices.map((dev) => (
+                                <option key={dev.id} value={dev.ip}>
+                                    {dev.name} ({dev.ip}) - 🟢 Online
+                                </option>
+                            ))}
+
+                        </select>
+
+                        <SecondaryButton
+                            type="button"
+                            onClick={fetchDevices}
+                            disabled={loadingDevices}
+                        >
+                            <RefreshCcwIcon
+                                className={`${loadingDevices ? 'animate-spin' : ''}`}
+                            />
+                        </SecondaryButton>
+
+                        <PrimaryButton
+                            type="button"
+                            onClick={connect}
+                            disabled={loadingFingerprint}
+                        >
+                            Connect
+                        </PrimaryButton>
+                    </div>
+
+
+
+                    {!loadingDevices && availableDevices.length === 0 && (
+                        <p className="mt-1 text-sm text-yellow-600">
+                            No devices online.
+                        </p>
+                    )}
                 </div>
             </div>
 
