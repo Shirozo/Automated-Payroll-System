@@ -20,7 +20,7 @@ export default function AddUserForm({ closeModal, positions }) {
     } = useForm({
         name: "",
         position: "",
-        employee_number: "",
+        employee_number: 1,
         fingerprint: "",
         rate_per_month: "",
         gsis: 0,
@@ -52,16 +52,11 @@ export default function AddUserForm({ closeModal, positions }) {
         setLoadingDevices(true)
 
         try {
-            const response = await fetch(`http://${device}/scan`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    command: "scan_fingerprint",
-                    message: "Please Place your fingerprint."
-                })
+            const response = await fetch(`http://${device}/scan?name=${addData.name}&employee_id=${addData.employee_number}`, {
+                method: "GET",
             })
+
+            console.log(response)
 
             if (!response.ok) {
                 toast.error("Please connect to another device!")
@@ -70,9 +65,8 @@ export default function AddUserForm({ closeModal, positions }) {
 
             const data = await response.json()
 
-            if (data.success && data.fingerprint) {
-                setAddData("fingerprint", data.fingerprint)
-                console.log(data.fingerprint)
+            if (data.success) {
+                console.log(data)
             } else {
                 toast.error("Failed to capture fingerprint!")
             }
@@ -93,7 +87,9 @@ export default function AddUserForm({ closeModal, positions }) {
     const fetchDevices = async () => {
         setLoadingDevices(true)
         try {
-            const response = await fetch('http://localhost:8000/device/online', {
+            const url = "http://192.168.88.247:8000/device/online";
+            // const url = "http://localhost:8000/device/online";
+            const response = await fetch(url, {
                 headers: {
                     'Content-Type': 'application/json',
                 }
