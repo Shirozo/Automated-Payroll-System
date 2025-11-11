@@ -200,12 +200,16 @@ export default function AddUserForm({ closeModal, positions }) {
                 </div>
             </div>
 
-            <h6 className="text-xl uppercase mt-6 mb-2 font-medium text-gray-900">
+            <h6 className="text-xl uppercase mt-6 font-medium text-gray-900">
                 Deduction
             </h6>
 
+            <span className="text-gray-500">
+                This will be deducted monthly on the employee salary.
+            </span>
 
-            <div className='flex gap-5'>
+
+            <div className='flex gap-5 mt-4'>
                 <div className="w-1/3">
                     <InputLabel
                         htmlFor="deduction_gsis_mpl"
