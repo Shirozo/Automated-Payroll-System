@@ -9,7 +9,7 @@ import { RefreshCcwIcon } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 
 
-export default function AddUserForm({ closeModal, positions }) {
+export default function AddUserForm({ closeModal, positions, nextId }) {
     const {
         data: addData,
         setData: setAddData,
@@ -19,8 +19,8 @@ export default function AddUserForm({ closeModal, positions }) {
         processing: addProcessing,
     } = useForm({
         name: "",
-        position: "",
-        employee_number: "",
+        position_id: "",
+        employee_number: nextId,
         deduction_gsis_mpl: 0,
         deduction_pagibig_mp3: 0,
         deduction_pagibig_calamity: 0,
@@ -142,27 +142,27 @@ export default function AddUserForm({ closeModal, positions }) {
 
                 <div className="w-1/3">
                     <InputLabel
-                        htmlFor="position"
+                        htmlFor="position_id"
                         value="Position"
                     />
 
                     <select
-                        id="position"
-                        name="position"
+                        id="position_id"
+                        name="position_id"
                         className="mt-1 block w-full focus:border-green-300 outline-green-300 rounded-md border-gray-300 shadow-sm"
-                        value={addData.position}
-                        onChange={(e) => setAddData("position", e.target.value)}
+                        value={addData.position_id}
+                        onChange={(e) => setAddData("position_id", e.target.value)}
                         placeholder="Position"
                         required={true}
                     >
                         <option value="">Select Type</option>
                         {positions.map((p) => (
-                            <option value={p.salary}>{p.name}</option>
+                            <option value={p.id}>{p.name}</option>
                         ))}
                     </select>
 
                     <InputError
-                        message={addErrors.position}
+                        message={addErrors.position_id}
                         className="mt-2"
                     />
                 </div>
