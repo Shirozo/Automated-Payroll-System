@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreEmployeeRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StoreEmployeeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::user()->type === 2;
     }
 
     /**
@@ -23,6 +24,19 @@ class StoreEmployeeRequest extends FormRequest
     {
         return [
             //
+            "name" => "required|string",
+            "username" => "required|string",
+            "employee_number" => "required|string",
+            "position_id" => "required|numeric",
+            "deduction_gsis_mpl" => "required|min:0|numeric",
+            "deduction_pagibig_mp3" => "required|min:0|numeric",
+            "deduction_pagibig_calamity" => "required|min:0|numeric",
+            "deduction_city_savings" => "required|min:0|numeric",
+            "deduction_withholding_tax" => "required|min:0|numeric",
+            "deduction_igp_cottage" => "required|min:0|numeric",
+            "deduction_cfi" => "required|min:0|numeric",
+            "device" => "nullable",
+            "fingerprint_id" => "nullable",
         ];
     }
 }
