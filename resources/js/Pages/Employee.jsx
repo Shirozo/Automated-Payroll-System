@@ -6,66 +6,16 @@ import AddUserForm from '@/form/AddUserForm';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { Edit, Plus, Search, Trash2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import DataTable from 'react-data-table-component';
+import { toast, ToastContainer } from 'react-toastify';
 
 
-export default function Employee() {
+export default function Employee({ flash }) {
 
-    const { positions, nextId } = usePage().props
+    const { positions, nextId, initialEmployees } = usePage().props
 
-    const initialEmployees = [
-        {
-            id: "1",
-            name: "Alice Johnson",
-            email: "alice@company.com",
-            department: "Engineering",
-            position: "Senior Developer",
-            salary: 120000,
-            joinDate: "2021-03-15",
-            status: "Active",
-        },
-        {
-            id: "2",
-            name: "Bob Smith",
-            email: "bob@company.com",
-            department: "Sales",
-            position: "Sales Manager",
-            salary: 95000,
-            joinDate: "2020-06-20",
-            status: "Active",
-        },
-        {
-            id: "3",
-            name: "Carol White",
-            email: "carol@company.com",
-            department: "Marketing",
-            position: "Marketing Specialist",
-            salary: 75000,
-            joinDate: "2022-01-10",
-            status: "Active",
-        },
-        {
-            id: "4",
-            name: "David Brown",
-            email: "david@company.com",
-            department: "Engineering",
-            position: "Junior Developer",
-            salary: 70000,
-            joinDate: "2023-05-15",
-            status: "On Leave",
-        },
-        {
-            id: "5",
-            name: "Emma Davis",
-            email: "emma@company.com",
-            department: "HR",
-            position: "HR Manager",
-            salary: 85000,
-            joinDate: "2019-09-01",
-            status: "Active",
-        },
-    ]
+    console.log(initialEmployees)
 
     const [employees, setEmployees] = useState(initialEmployees)
     const [searchTerm, setSearchTerm] = useState("")
@@ -101,52 +51,64 @@ export default function Employee() {
     const filteredEmployees = useMemo(() => {
         return employees.filter(
             (emp) =>
-                emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                emp.department.toLowerCase().includes(searchTerm.toLowerCase())
+                emp.user.name.toLowerCase().includes(searchTerm.toLowerCase()) 
+                // emp.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                // emp.department.toLowerCase().includes(searchTerm.toLowerCase())
         )
     }, [employees, searchTerm])
 
     const sortedEmployees = useMemo(() => {
         const sorted = [...filteredEmployees]
         if (sortBy === "name") {
-            sorted.sort((a, b) => a.name.localeCompare(b.name))
-        } else if (sortBy === "department") {
-            sorted.sort((a, b) => a.department.localeCompare(b.department))
-        } else if (sortBy === "salary") {
-            sorted.sort((a, b) => b.salary - a.salary)
+            sorted.sort((a, b) => a.user.name.localeCompare(b.user.name))
+        } 
+        // else if (sortBy === "department") {
+        //     sorted.sort((a, b) => a.department.localeCompare(b.department))
+        // } 
+        else if (sortBy === "salary") {
+            sorted.sort((a, b) => b.position.salary - a.position.salary)
         }
         return sorted
     }, [filteredEmployees, sortBy])
+
+    useEffect(() => {
+        if (flash.message.success) {
+            toast.success(flash.message.success)
+        }
+
+        if (flash.message.error) {
+            toast.error(flash.message.error)
+        }
+    }, [flash])
 
 
     const columns = [
         {
             name: 'Name',
-            selector: row => row.name,
+            selector: row => row.user.name,
             sortable: true,
-            cell: row => <div className="font-medium text-foreground">{row.name}</div>,
+            cell: row => <div className="font-medium text-foreground">{row.user.name}</div>,
             width: "20%"
         },
         {
             name: 'Username',
-            selector: row => row.email,
+            selector: row => row.user.username,
             sortable: true,
-            cell: row => <div className="text-muted-foreground">{row.email}</div>,
+            cell: row => <div className="text-muted-foreground">{row.user.username}</div>,
             width: "20%"
         },
         {
             name: 'Position',
-            selector: row => row.position,
+            selector: row => row.position.name,
             sortable: true,
-            cell: row => <div className="text-muted-foreground">{row.position}</div>,
+            cell: row => <div className="text-muted-foreground">{row.position.name}</div>,
             width: "15%"
         },
         {
             name: 'Salary',
-            selector: row => row.salary,
+            selector: row => row.position.salary,
             sortable: true,
-            cell: row => <div className="font-medium text-foreground">${row.salary.toLocaleString()}</div>,
+            cell: row => <div className="font-medium text-foreground">${row.position.salary.toLocaleString()}</div>,
             width: "20%"
         },
         {
@@ -220,6 +182,7 @@ export default function Employee() {
 
     return (
         <AuthenticatedLayout>
+            <ToastContainer />
             <Head title="Employee" />
             <header className="border-b border-border bg-white">
                 <div className="mx-auto px-8 py-6">
