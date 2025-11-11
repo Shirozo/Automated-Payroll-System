@@ -14,9 +14,19 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->nullable()->unique();
             $table->text('username')->unique();
             $table->string('password');
+            $table->string('employee_number');
+            $table->float('deduction_gsis_mpl', 2);
+            $table->float('deduction_pagibig_mp3', 2);
+            $table->float('deduction_pagibig_calamity', 2);
+            $table->float('deduction_city_savings', 2);
+            $table->float('deduction_withholding_tax', 2);
+            $table->float('deduction_igp_cottage', 2);
+            $table->float('deduction_cfi', 2);
+            $table->string("device")->nullable();
+            $table->integer("fingerprint_id")->nullable();
+            $table->foreignId('position_id')->nullable()->constrained('positions')->onDelete('set null')->onUpdate('cascade');
             $table->rememberToken();
             $table->timestamps();
         });
