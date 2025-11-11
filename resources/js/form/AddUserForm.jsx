@@ -104,6 +104,12 @@ export default function AddUserForm({ closeModal, positions, nextId }) {
 
     const submit = (e) => {
         e.preventDefault()
+        post(route("employee.store"), {
+            onSuccess : (page) => {
+                addReset()
+                closeModal()
+            }
+        })
     }
 
     return <>
