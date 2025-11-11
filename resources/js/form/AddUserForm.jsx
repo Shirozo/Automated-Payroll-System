@@ -21,15 +21,12 @@ export default function AddUserForm({ closeModal, positions }) {
         name: "",
         position: "",
         employee_number: "",
-        fingerprint: "",
-        rate_per_month: "",
-        gsis: 0,
-        pag_ibig_mp3: 0,
-        pag_ibig_calamity: 0,
-        city_savings: 0,
-        withholding_tax: 0,
-        igp_rental: 0,
-        retiree_fin_asst: 0,
+        deduction_gsis_mpl: 0,
+        deduction_pagibig_mp3: 0,
+        deduction_pagibig_calamity: 0,
+        deduction_city_savings: 0,
+        deduction_withholding_tax: 0,
+        deduction_igp_cottage: 0,
         cfi: 0,
     })
 
@@ -211,76 +208,76 @@ export default function AddUserForm({ closeModal, positions }) {
             <div className='flex gap-5'>
                 <div className="w-1/3">
                     <InputLabel
-                        htmlFor="gsis"
+                        htmlFor="deduction_gsis_mpl"
                         value="GSIS MPL"
                     />
 
                     <TextInput
-                        id="gsis"
+                        id="deduction_gsis_mpl"
                         type="number"
                         step={1}
                         min={0}
-                        name="gsis"
+                        name="deduction_gsis_mpl"
                         className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.gsis}
+                        value={addData.deduction_gsis_mpl}
                         onChange={(e) => {
-                            setAddData('gsis', e.target.value)
+                            setAddData('deduction_gsis_mpl', e.target.value)
                         }}
                         placeholder="GSIS MPL"
                     />
 
                     <InputError
-                        message={addErrors.name}
+                        message={addErrors.deduction_gsis_mpl}
                         className="mt-2"
                     />
                 </div>
 
                 <div className="w-1/3">
                     <InputLabel
-                        htmlFor="pag_ibig_mp3"
+                        htmlFor="deduction_pagibig_mp3"
                         value="PAG-IBIG MP3/Local"
                     />
 
                     <TextInput
-                        id="pag_ibig_mp3"
+                        id="deduction_pagibig_mp3"
                         type="number"
-                        name="pag_ibig_mp3"
+                        name="deduction_pagibig_mp3"
                         className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.pag_ibig_mp3}
+                        value={addData.deduction_pagibig_mp3}
                         onChange={(e) => {
-                            setAddData('pag_ibig_mp3', e.target.value)
+                            setAddData('deduction_pagibig_mp3', e.target.value)
                         }}
                         placeholder="PAG-IBIG MP3/Local"
                     />
 
                     <InputError
-                        message={addErrors.pag_ibig_mp3}
+                        message={addErrors.deduction_pagibig_mp3}
                         className="mt-2"
                     />
                 </div>
 
                 <div className="w-1/3">
                     <InputLabel
-                        htmlFor="pag_ibig_calamity"
+                        htmlFor="deduction_pagibig_calamity"
                         value="PAG-IBIG Calamity"
                     />
 
                     <TextInput
-                        id="pag_ibig_calamity"
+                        id="deduction_pagibig_calamity"
                         type="number"
                         step={1}
                         min={0}
-                        name="pag_ibig_calamity"
+                        name="deduction_pagibig_calamity"
                         className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.pag_ibig_calamity}
+                        value={addData.deduction_pagibig_calamity}
                         onChange={(e) => {
-                            setAddData('pag_ibig_calamity', e.target.value)
+                            setAddData('deduction_pagibig_calamity', e.target.value)
                         }}
                         placeholder="PAG-IBIG Calamity"
                     />
 
                     <InputError
-                        message={addErrors.pag_ibig_calamity}
+                        message={addErrors.deduction_pagibig_calamity}
                         className="mt-2"
                     />
                 </div>
@@ -291,74 +288,74 @@ export default function AddUserForm({ closeModal, positions }) {
 
                 <div className="w-1/3">
                     <InputLabel
-                        htmlFor="city_savings"
+                        htmlFor="deduction_city_savings"
                         value="City Savings Bank"
                     />
 
                     <TextInput
-                        id="city_savings"
+                        id="deduction_city_savings"
                         type="number"
-                        name="city_savings"
+                        name="deduction_city_savings"
                         className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.city_savings}
+                        value={addData.deduction_city_savings}
                         onChange={(e) => {
-                            setAddData('city_savings', e.target.value)
+                            setAddData('deduction_city_savings', e.target.value)
                         }}
                         placeholder="City Savings Bank"
                     />
 
                     <InputError
-                        message={addErrors.city_savings}
+                        message={addErrors.deduction_city_savings}
                         className="mt-2"
                     />
                 </div>
 
                 <div className="w-1/3">
                     <InputLabel
-                        htmlFor="withholding_tax"
+                        htmlFor="deduction_withholding_tax"
                         value="Withholding Tax"
                     />
 
                     <TextInput
-                        id="withholding_tax"
+                        id="deduction_withholding_tax"
                         type="number"
-                        name="withholding_tax"
+                        name="deduction_withholding_tax"
                         className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.withholding_tax}
+                        value={addData.deduction_withholding_tax}
                         onChange={(e) => {
-                            setAddData('withholding_tax', e.target.value)
+                            setAddData('deduction_withholding_tax', e.target.value)
                         }}
                         placeholder="Withholding Tax"
                     />
 
                     <InputError
-                        message={addErrors.withholding_tax}
+                        message={addErrors.deduction_withholding_tax}
                         className="mt-2"
                     />
                 </div>
 
                 <div className="w-1/3">
                     <InputLabel
-                        htmlFor="igp_rental"
+                        htmlFor="deduction_igp_cottage"
                         value="IGP Cottage Rental"
                     />
 
                     <TextInput
-                        id="igp_rental"
+                        id="deduction_igp_cottage"
                         type="number"
                         step={1}
                         min={0}
-                        name="igp_rental"
+                        name="deduction_igp_cottage"
                         className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.igp_rental}
+                        value={addData.deduction_igp_cottage}
                         onChange={(e) => {
-                            setAddData('igp_rental', e.target.value)
+                            setAddData('deduction_igp_cottage', e.target.value)
                         }}
                         placeholder="IGP Cottage Rental"
                     />
 
                     <InputError
-                        message={addErrors.igp_rental}
+                        message={addErrors.deduction_igp_cottage}
                         className="mt-2"
                     />
                 </div>
@@ -395,7 +392,7 @@ export default function AddUserForm({ closeModal, positions }) {
 
 
 
-            <h6 className="text-xl uppercase mt-6 mb-2 font-medium text-gray-900">
+            {/* <h6 className="text-xl uppercase mt-6 mb-2 font-medium text-gray-900">
                 Fingerprint
             </h6>
 
@@ -455,7 +452,7 @@ export default function AddUserForm({ closeModal, positions }) {
                         </p>
                     )}
                 </div>
-            </div>
+            </div> */}
 
             <div className="mt-6 flex justify-end">
                 <SecondaryButton onClick={closeModal} disabled={addProcessing}>
