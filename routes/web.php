@@ -31,6 +31,8 @@ Route::middleware('auth')->group(function () {
 Route::group(["prefix" => "employee", "as" => "employee.", "middleware" => ["auth"]], function() {
     
     Route::get("/", [EmployeeController::class, "show"])->name("show");
+
+    Route::post("/store", [EmployeeController::class, "store"])->name("store");
 });
 
 Route::group(["prefix" => "position", "as" => "position.", "middleware" => ["auth"]], function() {
