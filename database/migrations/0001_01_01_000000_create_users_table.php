@@ -17,17 +17,6 @@ return new class extends Migration
             $table->text('username')->unique();
             $table->string('password');
             $table->enum("type", [1, 2])->default(2);
-            $table->string('employee_number')->nullable();
-            $table->float('deduction_gsis_mpl', 2)->nullable();
-            $table->float('deduction_pagibig_mp3', 2)->nullable();
-            $table->float('deduction_pagibig_calamity', 2)->nullable();
-            $table->float('deduction_city_savings', 2)->nullable();
-            $table->float('deduction_withholding_tax', 2)->nullable();
-            $table->float('deduction_igp_cottage', 2)->nullable();
-            $table->float('deduction_cfi', 2)->nullable();
-            $table->string("device")->nullable();
-            $table->integer("fingerprint_id")->nullable();
-            $table->foreignId('position_id')->nullable()->constrained('positions')->onDelete('set null')->onUpdate('cascade');
             $table->rememberToken();
             $table->timestamps();
         });
