@@ -12,7 +12,7 @@ import DataTable from 'react-data-table-component';
 
 export default function Employee() {
 
-    const { positions } = usePage().props
+    const { positions, nextId } = usePage().props
 
     const initialEmployees = [
         {
@@ -296,6 +296,7 @@ export default function Employee() {
                 <AddUserForm
                     closeModal={() => setIsFormOpen(false)}
                     positions={positions}
+                    nextId={nextId}
                 />
             </Modal>
         </AuthenticatedLayout>
