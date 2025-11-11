@@ -126,21 +126,14 @@ export default function Employee() {
             selector: row => row.name,
             sortable: true,
             cell: row => <div className="font-medium text-foreground">{row.name}</div>,
-            width: "15%"
+            width: "20%"
         },
         {
-            name: 'Email',
+            name: 'Username',
             selector: row => row.email,
             sortable: true,
             cell: row => <div className="text-muted-foreground">{row.email}</div>,
-            width: "15%"
-        },
-        {
-            name: 'Department',
-            selector: row => row.department,
-            sortable: true,
-            cell: row => <div className="text-muted-foreground">{row.department}</div>,
-            width: "15%"
+            width: "20%"
         },
         {
             name: 'Position',
@@ -154,7 +147,7 @@ export default function Employee() {
             selector: row => row.salary,
             sortable: true,
             cell: row => <div className="font-medium text-foreground">${row.salary.toLocaleString()}</div>,
-            width: "15%"
+            width: "20%"
         },
         {
             name: 'Status',
