@@ -27,7 +27,7 @@ export default function AddUserForm({ closeModal, positions }) {
         deduction_city_savings: 0,
         deduction_withholding_tax: 0,
         deduction_igp_cottage: 0,
-        cfi: 0,
+        deduction_cfi: 0,
     })
 
     const [device, setDevice] = useState("")
@@ -49,16 +49,11 @@ export default function AddUserForm({ closeModal, positions }) {
         setLoadingDevices(true)
 
         try {
-            const response = await fetch(`http://${device}/scan`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    command: "scan_fingerprint",
-                    message: "Please Place your fingerprint."
-                })
+            const response = await fetch(`http://${device}/scan?name=${addData.name}&employee_id=${addData.employee_number}`, {
+                method: "GET",
             })
+
+            console.log(response)
 
             if (!response.ok) {
                 toast.error("Please connect to another device!")
@@ -67,9 +62,8 @@ export default function AddUserForm({ closeModal, positions }) {
 
             const data = await response.json()
 
-            if (data.success && data.fingerprint) {
-                setAddData("fingerprint", data.fingerprint)
-                console.log(data.fingerprint)
+            if (data.success) {
+                console.log(data)
             } else {
                 toast.error("Failed to capture fingerprint!")
             }
@@ -90,7 +84,9 @@ export default function AddUserForm({ closeModal, positions }) {
     const fetchDevices = async () => {
         setLoadingDevices(true)
         try {
-            const response = await fetch('http://localhost:8000/device/online', {
+            const url = "http://192.168.88.247:8000/device/online";
+            // const url = "http://localhost:8000/device/online";
+            const response = await fetch(url, {
                 headers: {
                     'Content-Type': 'application/json',
                 }
@@ -369,26 +365,26 @@ export default function AddUserForm({ closeModal, positions }) {
 
                 <div className="w-1/3">
                     <InputLabel
-                        htmlFor="cfi"
+                        htmlFor="deduction_cfi"
                         value="CFI"
                     />
 
                     <TextInput
-                        id="cfi"
+                        id="deduction_cfi"
                         type="number"
                         step={1}
                         min={0}
-                        name="cfi"
+                        name="deduction_cfi"
                         className="mt-1 block w-full focus:border-green-300 outline-green-300"
-                        value={addData.cfi}
+                        value={addData.deduction_cfi}
                         onChange={(e) => {
-                            setAddData('cfi', e.target.value)
+                            setAddData('deduction_cfi', e.target.value)
                         }}
                         placeholder="CFI"
                     />
 
                     <InputError
-                        message={addErrors.cfi}
+                        message={addErrors.deduction_cfi}
                         className="mt-2"
                     />
                 </div>

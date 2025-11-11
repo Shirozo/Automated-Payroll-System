@@ -51,7 +51,7 @@ Route::group(["prefix" => "configuration", "as" => "configuration.", "middleware
 
 Route::group(["prefix" => "device", "as" => "device.", "middleware" => ['auth']], function() {
 
-    Route::post('/register', [DeviceController::class, "register"])->name("register");
+    Route::get('/register', [DeviceController::class, "register"])->name("register")->withoutMiddleware("auth");
 
     Route::get("/online", [DeviceController::class, "online"])->name("online");
 });
