@@ -12,7 +12,7 @@ class StoreEmployeeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Auth::user()->type === 2;
+        return Auth::user()->type == 1;
     }
 
     /**
@@ -25,7 +25,6 @@ class StoreEmployeeRequest extends FormRequest
         return [
             //
             "name" => "required|string",
-            "username" => "required|string",
             "employee_number" => "required|string",
             "position_id" => "required|numeric",
             "deduction_gsis_mpl" => "required|min:0|numeric",
