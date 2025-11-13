@@ -3,13 +3,15 @@ import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { use, useState } from 'react';
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
+
+    console.log(user.type == 2)
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -25,32 +27,36 @@ export default function AuthenticatedLayout({ header, children }) {
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink
-                                    href={route('dashboard')}
-                                    active={route().current('dashboard')}
+                                    href={user.type == 1 ? route('index.dashboard') : route('index.employee')}
+                                    active={user.type == 1 ? route().current('index.dashboard') : route().current('index.employee')}
                                 >
                                     Dashboard
                                 </NavLink>
 
-                                <NavLink
-                                    href={route('employee.show')}
-                                    active={route().current('employee.show')}
-                                >
-                                    Employee
-                                </NavLink>
+                                {user.type == 1 && (
+                                    <>
+                                        <NavLink
+                                            href={route('employee.show')}
+                                            active={route().current('employee.show')}
+                                        >
+                                            Employee
+                                        </NavLink>
 
-                                <NavLink
-                                    href={route('position.show')}
-                                    active={route().current('position.show')}
-                                >
-                                    Position
-                                </NavLink>
+                                        <NavLink
+                                            href={route('position.show')}
+                                            active={route().current('position.show')}
+                                        >
+                                            Position
+                                        </NavLink>
 
-                                <NavLink
-                                    href={route('configuration.show')}
-                                    active={route().current('configuration.show')}
-                                >
-                                    Configuration
-                                </NavLink>
+                                        <NavLink
+                                            href={route('configuration.show')}
+                                            active={route().current('configuration.show')}
+                                        >
+                                            Configuration
+                                        </NavLink>
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -150,15 +156,15 @@ export default function AuthenticatedLayout({ header, children }) {
                 >
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
-                            href={route('dashboard')}
-                            active={route().current('dashboard')}
+                            href={route('index.dashboard')}
+                            active={route().current('index.dashboard')}
                         >
                             Dashboard
                         </ResponsiveNavLink>
 
                         <ResponsiveNavLink
-                            href={route('dashboard')}
-                            active={route().current('dashboard')}
+                            href={route('employee.show')}
+                            active={route().current('employee.show')}
                         >
                             Employee
                         </ResponsiveNavLink>
