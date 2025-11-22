@@ -1,61 +1,136 @@
-import { use, useMemo } from "react";
+import { use, useMemo, useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { usePage } from "@inertiajs/react";
 
-const months = ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"];
-const legends = [
-    { label: "Less", color: "bg-slate-200" },
-    { label: "", color: "bg-emerald-100" },
-    { label: "", color: "bg-emerald-200" },
-    { label: "", color: "bg-emerald-300" },
-    { label: "More", color: "bg-emerald-500" },
-];
-const CELL_SIZE = 11;
-const CELL_GAP = 3;
-const COLUMN_WIDTH = CELL_SIZE + CELL_GAP;
-
-function generateHeatmapData() {
-    const weeks = 53;
-    const daysPerWeek = 7;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const startDate = new Date(today);
-    startDate.setDate(startDate.getDate() - weeks * daysPerWeek + 1);
-
-    const weeksData = [];
-    const monthLabels = [];
-    let cursor = new Date(startDate);
-    let lastMonth = "";
-
-    for (let weekIdx = 0; weekIdx < weeks; weekIdx++) {
-        const week = [];
-        for (let dayIdx = 0; dayIdx < daysPerWeek; dayIdx++) {
-            week.push({
-                level: Math.floor(Math.random() * legends.length),
-                date: new Date(cursor),
-            });
-            cursor.setDate(cursor.getDate() + 1);
-        }
-        weeksData.push(week);
-
-        const month = week[0].date.toLocaleString("en-US", { month: "short" });
-        if (month !== lastMonth) {
-            monthLabels.push({ label: month, index: weekIdx });
-            lastMonth = month;
-        }
-    }
-
-    return { weeks: weeksData, monthLabels };
-}
 
 export default function EmployeeDashboard() {
 
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+
+    const attendanceData = [
+        {
+            date: "1",
+            status: "leave",
+            scanned: []
+        },
+        {
+            date: "2",
+            status: "present",
+            scanned: [
+                {
+                    am_in: "09:15",
+                    am_out: "01:00",
+                    pm_in: "02:00",
+                    pm_out: "05:30"
+                }
+            ]
+        },
+        {
+            date: "3",
+            status: "present",
+            scanned: [
+                {
+                    am_in: "09:05",
+                    am_out: "01:15",
+                    pm_in: "02:00",
+                    pm_out: "05:45"
+                }
+            ]
+        },
+        {
+            date: "2025-11-04",
+            status: "absent",
+            scanned: []
+        },
+        {
+            date: "5",
+            status: "present",
+            scanned: [
+                {
+                    am_in: "09:30",
+                    am_out: "01:00",
+                    pm_in: "02:15",
+                    pm_out: "05:30"
+                }
+            ]
+        },
+        {
+            date: "6",
+            status: "present",
+            scanned: [
+                {
+                    am_in: "08:45",
+                    am_out: "01:30",
+                    pm_in: "02:00",
+                    pm_out: "05:15"
+                }
+            ]
+        },
+        {
+            date: "7",
+            status: "present",
+            scanned: [
+                {
+                    am_in: "09:00",
+                    am_out: "01:00",
+                    pm_in: "02:00",
+                    pm_out: "06:00"
+                }
+            ]
+        },
+        {
+            date: "8",
+            status: "leave",
+            scanned: []
+        },
+        {
+            date: "9",
+            status: "present",
+            scanned: [
+                {
+                    am_in: "09:20",
+                    am_out: "01:10",
+                    pm_in: "02:00",
+                    pm_out: "05:30"
+                }
+            ]
+        },
+        {
+            date: "10",
+            status: "absent",
+            scanned: []
+        }
+    ];
+
+    const [hoveredDate, setHoveredDate] = useState(null)
+
+
+    const getDaysInMonth = (month, year) => {
+        return new Date(year, month + 1, 0).getDate()
+    }
+
+    const getFirstDayOfMonth = (month, year) => {
+        return new Date(year, month, 1).getDay()
+    }
+
+    const getDaysInMonth_val = getDaysInMonth(10, 2025)
+    const firstDay = getFirstDayOfMonth(10, 2025)
+    const totalCells = firstDay + getDaysInMonth_val
+
+    const getStatusColor = (status) => {
+        if (status === "present") return "bg-emerald-600"
+        if (status === "absent") return "bg-red-600"
+        if (status === "leave") return "bg-orange-600"
+        return "bg-gray-100 text-gray-500"
+    }
+
+    const [dateSelected, setDateSelected] = useState({
+        "month": months[new Date().getMonth()],
+        "year": new Date().getFullYear()
+    })
+
     const { user_data } = usePage().props
-    console.log(user_data)
-    const { weeks, monthLabels } = useMemo(() => generateHeatmapData(), []);
-    const graphWidth = weeks.length * COLUMN_WIDTH;
-    const graphHeight = 7 * CELL_SIZE + 6 * CELL_GAP;
     const attendanceStats = [
         { label: "Present", value: 18, description: "Working days this month" },
         { label: "Absent", value: 2, description: "Unexcused absences" },
@@ -119,99 +194,92 @@ export default function EmployeeDashboard() {
                                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                     <div>
                                         <h2 className="text-xl font-semibold text-gray-900">Attendance</h2>
-                                        <p className="text-sm text-gray-500">Whole-year overview of employee presence</p>
+                                        <p className="text-sm text-gray-500">{months[dateSelected.month]}</p>
                                     </div>
-                                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                                        <span>Less</span>
-                                        {legends.map(({ color }, idx) => (
-                                            <span key={idx} className={`h-3 w-3 rounded-sm ${color}`} />
-                                        ))}
-                                        <span>More</span>
+                                    <div className="flex gap-3">
+                                        <select
+                                            value={dateSelected.month}
+                                            onChange={(e) => setDateSelected({ ...dateSelected, month: e.target.value })}
+                                            className="rounded-lg border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50">
+                                            {months.map((m, i) => (
+                                                <option key={i} value={m}>
+                                                    {m}
+                                                </option>
+                                            ))}
+
+                                        </select>
+
+                                        <select
+                                            value={dateSelected.year}
+                                            onChange={(e) => setDateSelected({ ...dateSelected, year: e.target.value })}
+                                            className="rounded-lg border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50">
+                                            {[2024, 2025, 2026].map((y) => (
+                                                <option key={y} value={y}>
+                                                    {y}
+                                                </option>
+                                            ))}
+
+                                        </select>
                                     </div>
                                 </div>
 
                                 <div className="flex flex-col gap-6 lg:flex-row">
                                     <div className="flex-1 overflow-x-auto">
-                                        <div className="relative min-w-max">
-                                            <div
-                                                className="absolute left-10 -top-5 text-xs text-gray-500"
-                                                style={{ width: `${graphWidth}px` }}
-                                            >
-                                                {monthLabels.map(({ label, index }) => (
-                                                    <span
-                                                        key={`${label}-${index}`}
-                                                        className="absolute font-medium"
-                                                        style={{ left: `${index * COLUMN_WIDTH}px` }}
-                                                    >
-                                                        {label}
-                                                    </span>
+                                        <div className="w-full">
+                                            <div className="grid grid-cols-7 gap-2 mb-2">
+                                                {weekDays.map((day) => (
+                                                    <div key={day} className="flex items-center justify-center text-sm font-semibold text-gray-600">
+                                                        {day}
+                                                    </div>
                                                 ))}
                                             </div>
+                                            <div className="grid grid-cols-7 gap-2">
+                                                {Array.from({ length: totalCells }).map((_, index) => {
+                                                    const dayNum = index - firstDay + 1
+                                                    const isValid = index >= firstDay && index < firstDay + getDaysInMonth_val
+                                                    const attendanceRecord = isValid ? attendanceData.find((d) => d.date == dayNum) : null
 
-                                            <div className="flex gap-3 pt-6">
-                                                <div
-                                                    className="flex flex-col justify-between py-[2px] text-xs text-gray-400"
-                                                    style={{ height: `${graphHeight}px` }}
-                                                >
-                                                    {["Sun", "Tue", "Thu"].map((day) => (
-                                                        <span key={day}>{day}</span>
-                                                    ))}
-                                                </div>
+                                                    console.log(attendanceRecord)
 
-                                                <div
-                                                    className="grid grid-flow-col"
-                                                    style={{
-                                                        gridAutoColumns: `${CELL_SIZE}px`,
-                                                        columnGap: `${CELL_GAP}px`,
-                                                        rowGap: `${CELL_GAP}px`,
-                                                        width: `${graphWidth}px`,
-                                                    }}
-                                                >
-                                                    {weeks.map((week, weekIdx) => (
+                                                    return (
                                                         <div
-                                                            key={weekIdx}
-                                                            className="grid"
-                                                            style={{
-                                                                rowGap: `${CELL_GAP}px`,
-                                                                gridTemplateRows: `repeat(7, ${CELL_SIZE}px)`,
-                                                            }}
-                                                        >
-                                                            {week.map(({ level, date }, dayIdx) => (
-                                                                <div
-                                                                    key={dayIdx}
-                                                                    title={date.toLocaleDateString(undefined, {
-                                                                        month: "short",
-                                                                        day: "numeric",
-                                                                        year: "numeric",
-                                                                    })}
-                                                                    className={`rounded-[3px] border border-gray-200 transition-colors duration-150 ${legends[level].color} hover:border-emerald-500`}
-                                                                    style={{
-                                                                        width: `${CELL_SIZE}px`,
-                                                                        height: `${CELL_SIZE}px`,
-                                                                    }}
-                                                                />
-                                                            ))}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <p className="mt-4 text-xs text-gray-500">Snapshot of attendance across the last 365 days.</p>
-                                    </div>
+                                                            key={index}
+                                                            className="relative h-10"
+                                                            onMouseEnter={() => isValid && setHoveredDate(dayNum)}
+                                                            onMouseLeave={() => setHoveredDate(null)}>
 
-                                    <div className="w-full max-w-[120px]">
-                                        <div className="flex flex-col gap-2">
-                                            {[2025, 2024, 2023].map((year, idx) => (
-                                                <button
-                                                    key={year}
-                                                    className={`rounded-md border px-3 py-2 text-sm font-medium transition ${idx === 0
-                                                            ? "border-emerald-500 bg-emerald-500 text-white shadow-sm"
-                                                            : "border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
-                                                        }`}
-                                                >
-                                                    {year}
-                                                </button>
-                                            ))}
+                                                            {isValid ? (
+                                                                <div className={`w-full h-full flex items-center justify-center rounded-lg font-semibold text-sm cursor-pointer transition-all ${attendanceRecord ? getStatusColor(attendanceRecord.status) : "bg-gray-50 text-gray-400"} ${hoveredDate === dayNum ? "ring-2 ring-blue-500 shadow-md" : ""}`}
+                                                                >
+                                                                    {dayNum}
+
+                                                                    {hoveredDate === dayNum && attendanceRecord && attendanceRecord.status == "present" && (
+                                                                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded-lg p-2 whitespace-nowrap z-50">
+                                                                            {attendanceRecord.scanned[0].am_in && (
+                                                                                <div>AM In: {attendanceRecord.scanned[0].am_in}</div>
+                                                                            )}
+                                                                            {attendanceRecord.scanned[0].am_out && (
+                                                                                <div>AM Out: {attendanceRecord.scanned[0].am_out}</div>
+                                                                            )}
+                                                                            {attendanceRecord.scanned[0].pm_in && (
+                                                                                <div>PM In: {attendanceRecord.scanned[0].pm_in}</div>
+                                                                            )}
+                                                                            {attendanceRecord.scanned[0].pm_out && (
+                                                                                <div>PM Out: {attendanceRecord.scanned[0].pm_out}</div>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+
+                                                                </div>
+
+                                                            ) : (
+                                                                <div className="w-full h-full bg-white"></div>
+                                                            )}
+
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
