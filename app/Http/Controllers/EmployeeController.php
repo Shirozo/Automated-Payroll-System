@@ -7,6 +7,8 @@ use App\Http\Requests\UpdateEmployeeRequest;
 use App\Models\Employee;
 use App\Models\Position;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class EmployeeController extends Controller
 {
@@ -28,11 +30,10 @@ class EmployeeController extends Controller
             $employee = Employee::create(array_merge($request->validated(), [
                 "user_id" => $user->id
             ]));
-            
+
             return redirect()->route("employee.show")->with('success', 'Employee created successfully');
         } catch (\Throwable $th) {
             return redirect()->route("employee.show")->with('error', $th->getMessage());
-    
         }
     }
 
@@ -53,25 +54,32 @@ class EmployeeController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Employee $employee)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateEmployeeRequest $request, Employee $employee)
     {
-        //
+        $request->validated();
+
+        DB::beginTransaction();
+
+        $user = User::find($employee->user_id);
+
+        if ($request->password) {
+            $user->update([
+                "password" => Hash::make($request->password)
+            ]);
+        }
+
+        $user->update([
+            "name" => $request->name
+        ]);
+
+        $employee->update($request->validated());
+        
+        DB::commit();
+        
+
+        return redirect()->route("employee.show")->with('success', 'Employee updated successfully');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Employee $employee)
     {
         //
