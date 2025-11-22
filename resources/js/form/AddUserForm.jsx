@@ -188,9 +188,6 @@ export default function AddUserForm({ closeModal, positions, nextId }) {
                         className="mt-1 block w-full focus:border-green-300 outline-green-300"
                         value={addData.employee_number}
                         readOnly={true}
-                        onChange={(e) => {
-                            setAddData('employee_number', e.target.value)
-                        }}
                         placeholder="Employee No"
                         required={true}
                     />
