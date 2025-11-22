@@ -16,6 +16,8 @@ export default function Deduction({ config_data }) {
             essu_ffa: config_data.essu_ffa,
             retiree_fin_asst: config_data.retiree_fin_asst,
             essu_union: config_data.essu_union,
+            health_care : config_data.health_care,
+            death_aid : config_data.death_aid,
         });
 
     const submit = (e) => {
@@ -48,8 +50,7 @@ export default function Deduction({ config_data }) {
                         id="philhealth"
                         className="mt-1 block w-full"
                         value={data.philhealth}
-                        onChange={(e) => setData('philhealth', e.target.value)}
-                        required
+                        readOnly={true}
                         type="text"
                         placeholder="Phil. Health"
                     />
@@ -81,8 +82,8 @@ export default function Deduction({ config_data }) {
                     <TextInput
                         id="life_retirement"
                         className="mt-1 block w-full"
+                        readOnly={true}
                         value={data.life_retirement}
-                        onChange={(e) => setData('life_retirement', e.target.value)}
                         required
                         type="text"
                         placeholder="Life & Retirement"
@@ -134,13 +135,43 @@ export default function Deduction({ config_data }) {
                         id="retiree_fin_asst"
                         className="mt-1 block w-full"
                         value={data.retiree_fin_asst}
-                        onChange={(e) => setData('retiree_fin_asst', e.target.value)}
+                        readOnly={true}
                         required
                         type="text"
                         placeholder="Retiree's Fin. Asst."
                     />
 
                     <InputError className="mt-2" message={errors.retiree_fin_asst} />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="death_aid" value="Death Aid" />
+
+                    <TextInput
+                        id="death_aid"
+                        className="mt-1 block w-full"
+                        value={data.death_aid}
+                        readOnly={true}
+                        required
+                        type="text"
+                    />
+
+                    <InputError className="mt-2" message={errors.death_aid} />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="health_care" value="Health Care" />
+
+                    <TextInput
+                        id="health_care"
+                        className="mt-1 block w-full"
+                        value={data.health_care}
+                        readOnly={true}
+                        required
+                        type="text"
+                    />
+
+                    <InputError className="mt-2" message={errors.health_care} />
                 </div>
 
                 <div>
