@@ -41,6 +41,8 @@ Route::group(["prefix" => "employee", "as" => "employee.", "middleware" => ["aut
     Route::get("/", [EmployeeController::class, "show"])->name("show");
 
     Route::post("/store", [EmployeeController::class, "store"])->name("store");
+
+    Route::put("/update/employee/{employee}", [EmployeeController::class, "update"])->name("update");
 });
 
 Route::group(["prefix" => "position", "as" => "position.", "middleware" => ["auth"]], function() {
