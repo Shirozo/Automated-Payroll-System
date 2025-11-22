@@ -3,6 +3,7 @@ import Modal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import AddUserForm from '@/form/AddUserForm';
+import EditUserForm from '@/form/EditUserForm';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { Edit, Plus, Search, Trash2 } from 'lucide-react';
@@ -20,15 +21,15 @@ export default function Employee({ flash }) {
     const [employees, setEmployees] = useState(initialEmployees)
     const [searchTerm, setSearchTerm] = useState("")
     const [isFormOpen, setIsFormOpen] = useState(false)
-    const [editingId, setEditingId] = useState(null)
+    const [isFormEditOpen, setIsFormEditOpen] = useState(false)
+    const [editingData, setEditingData] = useState(null)
     const [sortBy, setSortBy] = useState("name")
     const [isLoading, setIsLoading] = useState(true)
 
 
     const handleEditClick = (employee) => {
-        setEditingId(employee.id)
-        setFormData(employee)
-        setIsFormOpen(true)
+        setEditingData(employee)
+        setIsFormEditOpen(true)
     }
 
     const handleDelete = (id) => {
@@ -253,6 +254,14 @@ export default function Employee({ flash }) {
                     closeModal={() => setIsFormOpen(false)}
                     positions={positions}
                     nextId={nextId}
+                />
+            </Modal>
+
+            <Modal show={isFormEditOpen} maxWidth='6xl'>
+                <EditUserForm
+                    closeModal={() => setIsFormEditOpen(false)}
+                    positions={positions}
+                    user_data={editingData}
                 />
             </Modal>
         </AuthenticatedLayout>
