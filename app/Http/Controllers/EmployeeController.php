@@ -18,23 +18,19 @@ class EmployeeController extends Controller
     public function store(StoreEmployeeRequest $request)
     {
         //
-        try {
-            $request->validated();
+        $request->validated();
 
-            $user = User::create([
-                "name" => $request->name,
-                "username" => $request->employee_number,
-                "password" => $request->employee_number,
-            ]);
+        $user = User::create([
+            "name" => $request->name,
+            "username" => $request->employee_number,
+            "password" => $request->employee_number,
+        ]);
 
-            $employee = Employee::create(array_merge($request->validated(), [
-                "user_id" => $user->id
-            ]));
+        $employee = Employee::create(array_merge($request->validated(), [
+            "user_id" => $user->id
+        ]));
 
-            return redirect()->route("employee.show")->with('success', 'Employee created successfully');
-        } catch (\Throwable $th) {
-            return redirect()->route("employee.show")->with('error', $th->getMessage());
-        }
+        return redirect()->route("employee.show")->with('success', 'Employee created successfully');
     }
 
     /**
