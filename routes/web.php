@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceController;
@@ -66,6 +67,12 @@ Route::group(["prefix" => "device", "as" => "device.", "middleware" => ['auth']]
     Route::get('/register', [DeviceController::class, "register"])->name("register")->withoutMiddleware("auth");
 
     Route::get("/online", [DeviceController::class, "online"])->name("online");
+});
+
+Route::group(["prefix" => "attendance", "as" => "attendance."], function() {
+    
+    Route::post("/store", [AttendanceController::class, "store"])->name("store");
+
 });
 
 require __DIR__.'/auth.php';
