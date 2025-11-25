@@ -31,4 +31,8 @@ class Employee extends Model
     public function position() {
         return $this->belongsTo(Position::class);
     }
+
+    public function attendance() {
+        return $this->hasMany(Attendance::class);
+    }
 }
