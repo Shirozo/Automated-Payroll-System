@@ -8,100 +8,7 @@ export default function EmployeeDashboard() {
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
-    const attendanceData = [
-        {
-            date: "1",
-            status: "leave",
-            scanned: []
-        },
-        {
-            date: "2",
-            status: "present",
-            scanned: [
-                {
-                    am_in: "09:15",
-                    am_out: "01:00",
-                    pm_in: "02:00",
-                    pm_out: "05:30"
-                }
-            ]
-        },
-        {
-            date: "3",
-            status: "present",
-            scanned: [
-                {
-                    am_in: "09:05",
-                    am_out: "01:15",
-                    pm_in: "02:00",
-                    pm_out: "05:45"
-                }
-            ]
-        },
-        {
-            date: "2025-11-04",
-            status: "absent",
-            scanned: []
-        },
-        {
-            date: "5",
-            status: "present",
-            scanned: [
-                {
-                    am_in: "09:30",
-                    am_out: "01:00",
-                    pm_in: "02:15",
-                    pm_out: "05:30"
-                }
-            ]
-        },
-        {
-            date: "6",
-            status: "present",
-            scanned: [
-                {
-                    am_in: "08:45",
-                    am_out: "01:30",
-                    pm_in: "02:00",
-                    pm_out: "05:15"
-                }
-            ]
-        },
-        {
-            date: "7",
-            status: "present",
-            scanned: [
-                {
-                    am_in: "09:00",
-                    am_out: "01:00",
-                    pm_in: "02:00",
-                    pm_out: "06:00"
-                }
-            ]
-        },
-        {
-            date: "8",
-            status: "leave",
-            scanned: []
-        },
-        {
-            date: "9",
-            status: "present",
-            scanned: [
-                {
-                    am_in: "09:20",
-                    am_out: "01:10",
-                    pm_in: "02:00",
-                    pm_out: "05:30"
-                }
-            ]
-        },
-        {
-            date: "10",
-            status: "absent",
-            scanned: []
-        }
-    ];
+    const { attendance } = usePage().props
 
     const [hoveredDate, setHoveredDate] = useState(null)
 
@@ -121,7 +28,7 @@ export default function EmployeeDashboard() {
     const getStatusColor = (status) => {
         if (status === "present") return "bg-emerald-600"
         if (status === "absent") return "bg-red-600"
-        if (status === "leave") return "bg-orange-600"
+        if (status === "late") return "bg-emerald-400"
         return "bg-gray-100 text-gray-500"
     }
 
@@ -237,9 +144,7 @@ export default function EmployeeDashboard() {
                                                 {Array.from({ length: totalCells }).map((_, index) => {
                                                     const dayNum = index - firstDay + 1
                                                     const isValid = index >= firstDay && index < firstDay + getDaysInMonth_val
-                                                    const attendanceRecord = isValid ? attendanceData.find((d) => d.date == dayNum) : null
-
-                                                    console.log(attendanceRecord)
+                                                    const attendanceRecord = isValid ? attendance.find((d) => d.date == dayNum) : null
 
                                                     return (
                                                         <div
