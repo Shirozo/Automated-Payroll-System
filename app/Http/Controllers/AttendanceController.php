@@ -9,6 +9,8 @@ use App\Models\Configuration;
 use App\Models\Device;
 use App\Models\Employee;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
 {
@@ -162,5 +164,68 @@ class AttendanceController extends Controller
     public function destroy(Attendance $attendance)
     {
         //
+    }
+
+    public function attendance(Request $request)
+    {
+        $user_data = Employee::with(['user', 'position'])
+            ->where('user_id', Auth::id())
+            ->first();
+
+
+        $attendance = Attendance::where('employee_id', $user_data->id)
+            ->whereYear('date', $request->year)
+            ->whereMonth('date', $request->month)
+            ->orderBy('date', 'asc')
+            ->orderBy('time', 'asc')
+            ->get();
+
+        $requestedYear = (int) $request->year;
+        $requestedMonth = (int) $request->month;
+
+        $startOfMonth = Carbon::createFromDate($requestedYear, $requestedMonth, 1)->startOfMonth();
+        $endOfMonth = Carbon::createFromDate($requestedYear, $requestedMonth, 1)->endOfMonth();
+
+        $isCurrentMonth = now()->year === $requestedYear && now()->month === $requestedMonth;
+        $lastDay = $isCurrentMonth ? now()->day : $endOfMonth->day;
+
+        $formattedAttendance = [];
+
+        for ($date = $startOfMonth->copy(); $date->lte($endOfMonth) && $date->day <= $lastDay; $date->addDay()) {
+            if ($date->isWeekend()) {
+                continue;
+            }
+
+            $dateString = $date->format('Y-m-d');
+            $dayAttendance = $attendance->where('date', $dateString);
+
+            if ($dayAttendance->isEmpty()) {
+                $formattedAttendance[] = [
+                    'date' => $date->day,
+                    'status' => 'absent',
+                    'scanned' => []
+                ];
+            } else {
+                $hasLate = $dayAttendance->contains('tag', 'late');
+                $status = $hasLate ? 'late' : 'present';
+
+                $scanned = [
+                    'am_in' => $dayAttendance->where('action', 'am_login')->first()?->time ?? null,
+                    'am_out' => $dayAttendance->where('action', 'am_logout')->first()?->time ?? null,
+                    'pm_in' => $dayAttendance->where('action', 'pm_login')->first()?->time ?? null,
+                    'pm_out' => $dayAttendance->where('action', 'pm_logout')->first()?->time ?? null,
+                ];
+
+                $formattedAttendance[] = [
+                    'date' => $date->day,
+                    'status' => $status,
+                    'scanned' => [$scanned]
+                ];
+            }
+        }
+
+        return response()->json([
+            "attendance" => $formattedAttendance
+        ], 200);
     }
 }
