@@ -73,6 +73,9 @@ Route::group(["prefix" => "attendance", "as" => "attendance."], function() {
     
     Route::post("/store", [AttendanceController::class, "store"])->name("store");
 
+    Route::get("/all", [AttendanceController::class, "attendance"])
+    ->middleware("auth")->name("all");
+
 });
 
 require __DIR__.'/auth.php';
