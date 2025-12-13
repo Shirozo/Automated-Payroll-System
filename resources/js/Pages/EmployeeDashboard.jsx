@@ -1,6 +1,7 @@
 import { use, useMemo, useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { usePage } from "@inertiajs/react";
+import axios from "axios";
 
 
 export default function EmployeeDashboard() {
@@ -10,7 +11,28 @@ export default function EmployeeDashboard() {
 
     const { attendance } = usePage().props
 
+    const [attendances, setAttendances] = useState(attendance)
+
     const [hoveredDate, setHoveredDate] = useState(null)
+
+    const fetchAttendance = async (e, act) => {
+        const newDate = {
+            ...dateSelected,
+            [act]: parseInt(e.target.value)
+        }
+
+        setDateSelected(newDate)
+
+        try {
+            const response = await axios.get(route("attendance.all", {
+                month: newDate.month + 1,
+                year: newDate.year
+            }))
+            setAttendances(response.data.attendance)
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
 
     const getDaysInMonth = (month, year) => {
@@ -21,8 +43,16 @@ export default function EmployeeDashboard() {
         return new Date(year, month, 1).getDay()
     }
 
-    const getDaysInMonth_val = getDaysInMonth(10, 2025)
-    const firstDay = getFirstDayOfMonth(10, 2025)
+    const [dateSelected, setDateSelected] = useState({
+        "month": new Date().getMonth(),
+        "year": new Date().getFullYear()
+    })
+
+    const currentYear = new Date().getFullYear()
+    const years = Array.from({ length: currentYear - 2025 + 1 }, (_, i) => 2025 + i)
+
+    const getDaysInMonth_val = getDaysInMonth(dateSelected.month, dateSelected.year)
+    const firstDay = getFirstDayOfMonth(dateSelected.month, dateSelected.year)
     const totalCells = firstDay + getDaysInMonth_val
 
     const getStatusColor = (status) => {
@@ -31,11 +61,6 @@ export default function EmployeeDashboard() {
         if (status === "late") return "bg-emerald-400"
         return "bg-gray-100 text-gray-500"
     }
-
-    const [dateSelected, setDateSelected] = useState({
-        "month": months[new Date().getMonth()],
-        "year": new Date().getFullYear()
-    })
 
     const { user_data } = usePage().props
     const attendanceStats = [
@@ -106,10 +131,10 @@ export default function EmployeeDashboard() {
                                     <div className="flex gap-3">
                                         <select
                                             value={dateSelected.month}
-                                            onChange={(e) => setDateSelected({ ...dateSelected, month: e.target.value })}
+                                            onChange={(e) => fetchAttendance(e, "month")}
                                             className="rounded-lg border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50">
                                             {months.map((m, i) => (
-                                                <option key={i} value={m}>
+                                                <option key={i} value={i}>
                                                     {m}
                                                 </option>
                                             ))}
@@ -118,9 +143,9 @@ export default function EmployeeDashboard() {
 
                                         <select
                                             value={dateSelected.year}
-                                            onChange={(e) => setDateSelected({ ...dateSelected, year: e.target.value })}
+                                            onChange={(e) => fetchAttendance(e, "year")}
                                             className="rounded-lg border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50">
-                                            {[2024, 2025, 2026].map((y) => (
+                                            {years.map((y) => (
                                                 <option key={y} value={y}>
                                                     {y}
                                                 </option>
@@ -144,7 +169,7 @@ export default function EmployeeDashboard() {
                                                 {Array.from({ length: totalCells }).map((_, index) => {
                                                     const dayNum = index - firstDay + 1
                                                     const isValid = index >= firstDay && index < firstDay + getDaysInMonth_val
-                                                    const attendanceRecord = isValid ? attendance.find((d) => d.date == dayNum) : null
+                                                    const attendanceRecord = isValid ? attendances.find((d) => d.date == dayNum) : null
 
                                                     return (
                                                         <div
