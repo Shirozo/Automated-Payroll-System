@@ -42,10 +42,7 @@ export default function UpdateProfileInformation({
                         id="name"
                         className="mt-1 block w-full"
                         value={data.name}
-                        onChange={(e) => setData('name', e.target.value)}
-                        required
-                        isFocused
-                        autoComplete="name"
+                        readOnly
                     />
 
                     <InputError className="mt-2" message={errors.name} />
