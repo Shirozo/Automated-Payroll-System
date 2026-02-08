@@ -28,19 +28,21 @@ export default function EditUserForm({ closeModal, positions, user_data }) {
         deduction_withholding_tax: user_data.deduction_withholding_tax,
         deduction_igp_cottage: user_data.deduction_igp_cottage,
         deduction_cfi: user_data.deduction_cfi,
-        device : user_data.device,
-        fingerprint_id : user_data.fingerprint_id,
-        password : ""
+        device: user_data.device,
+        fingerprint_id: user_data.fingerprint_id,
+        password: ""
     })
 
     const [device, setDevice] = useState("")
     const [availableDevices, setAvailableDevices] = useState([])
     const [loadingDevices, setLoadingDevices] = useState(false)
     const [loadingFingerprint, setLoadingFingerprint] = useState(false)
-    const [messsageR, setMessageR]  = useState("")
+    const [messsageR, setMessageR] = useState("")
 
     useEffect(() => {
-        fetchDevices()
+        if (!user_data.device) {
+            fetchDevices()
+        }
     }, [])
 
     const connect = async () => {
@@ -93,8 +95,8 @@ export default function EditUserForm({ closeModal, positions, user_data }) {
     const fetchDevices = async () => {
         setLoadingDevices(true)
         try {
-            const url = "http://192.168.88.247:8000/device/online";
-            // const url = "http://localhost:8000/device/online";
+            // const url = "http://192.168.88.247:8000/device/online";
+            const url = "http://localhost:8000/device/online";
             const response = await fetch(url, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -113,8 +115,8 @@ export default function EditUserForm({ closeModal, positions, user_data }) {
 
     const submit = (e) => {
         e.preventDefault()
-        put(route("employee.update", {employee : user_data.id}), {
-            onSuccess : (page) => {
+        put(route("employee.update", { employee: user_data.id }), {
+            onSuccess: (page) => {
                 addReset()
                 closeModal()
                 toast.success("Employee information Updated!")
@@ -169,7 +171,7 @@ export default function EditUserForm({ closeModal, positions, user_data }) {
                         value={addData.position_id}
                         onChange={(e) => setAddData("position_id", e.target.value)}
                         placeholder="Position"
-                        required={true}
+                        required
                     >
                         <option value="">Select Type</option>
                         {positions.map((p) => (
@@ -197,12 +199,12 @@ export default function EditUserForm({ closeModal, positions, user_data }) {
                         name="employee_number"
                         className="mt-1 block w-full focus:border-green-300 outline-green-300"
                         value={addData.employee_number}
-                        readOnly={true}
+                        readOnly
                         onChange={(e) => {
                             setAddData('employee_number', e.target.value)
-                        }}u succe
+                        }} u succe
                         placeholder="Employee No"
-                        required={true}
+                        required
                     />
 
                     <InputError
@@ -444,12 +446,12 @@ export default function EditUserForm({ closeModal, positions, user_data }) {
             </h6>
 
             <span className="text-gray-500">
-                { user_data.device 
-                    ? "User have already registered there fingerprint. Connect to a device to register to a new device." 
+                {user_data.device
+                    ? "User have already registered there fingerprint. Connect to a device to register to a new device."
                     : "User have not yet registered his/her fingerprint. Connect to a device to begin."}
             </span>
-             <span className="text-green-500">
-                { messsageR 
+            <span className="text-green-500">
+                {messsageR
                     ? messsageR
                     : ""}
             </span>
