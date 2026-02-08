@@ -192,7 +192,7 @@ class AttendanceController extends Controller
         $formattedAttendance = [];
 
         for ($date = $startOfMonth->copy(); $date->lte($endOfMonth) && $date->day <= $lastDay; $date->addDay()) {
-            if ($date->isWeekend()) {
+            if ($date->isWeekend() || $date->gt(now())) {
                 continue;
             }
 
