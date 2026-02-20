@@ -226,7 +226,7 @@ export default function AttendanceLog({ flash }) {
                     customStyles={customStyles}
                     noDataComponent={
                         <div className="px-6 py-8 text-center text-muted-foreground">
-                            No employees found
+                            No attendance found
                         </div>
                     }
                 />
