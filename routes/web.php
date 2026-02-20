@@ -8,6 +8,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -61,8 +62,11 @@ Route::group(["prefix" => "device", "as" => "device.", "middleware" => ['auth']]
 });
 
 Route::group(["prefix" => "attendance", "as" => "attendance."], function() {
+
+    Route::get("/", [AttendanceController::class, "show"])->name("show");
     
-    Route::post("/store", [AttendanceController::class, "store"])->name("store");
+    Route::post("/store", [AttendanceController::class, "store"])->name("store")
+    ->withoutMiddleware([VerifyCsrfToken::class]);
 
     Route::get("/all", [AttendanceController::class, "attendance"])
     ->middleware("auth")->name("all");
