@@ -59,6 +59,14 @@ export default function AuthenticatedLayout({ header, children }) {
                                 )}
 
                                 <NavLink
+                                    href={route('attendance.show')}
+                                    active={route().current('attendance.show')}
+                                >
+                                    Attendance
+                                </NavLink>
+
+
+                                <NavLink
                                     href={route('profile.edit')}
                                     active={route().current('profile.edit')}
                                 >
