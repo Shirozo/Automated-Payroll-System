@@ -61,7 +61,6 @@ export default function EditUserForm({ closeModal, positions, user_data }) {
                 method: "GET",
             })
 
-            console.log(response)
 
             if (!response.ok) {
                 toast.error("Please try again registering!")
@@ -71,7 +70,6 @@ export default function EditUserForm({ closeModal, positions, user_data }) {
             const data = await response.json()
 
             if (data.success) {
-                console.log(data)
                 setAddData("device", device)
                 setAddData("fingerprint_id", data.fingerprint_id)
                 setMessageR("Fingerprint Capture Success!")
@@ -95,8 +93,8 @@ export default function EditUserForm({ closeModal, positions, user_data }) {
     const fetchDevices = async () => {
         setLoadingDevices(true)
         try {
-            // const url = "http://192.168.88.247:8000/device/online";
-            const url = "http://localhost:8000/device/online";
+            const url = "http://192.168.88.247:8000/device/online";
+            // const url = "http://localhost:8000/device/online";
             const response = await fetch(url, {
                 headers: {
                     'Content-Type': 'application/json',

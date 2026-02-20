@@ -16,8 +16,6 @@ export default function Employee({ flash }) {
 
     const { positions, nextId, initialEmployees } = usePage().props
 
-    console.log(initialEmployees)
-
     const [employees, setEmployees] = useState(initialEmployees)
     const [searchTerm, setSearchTerm] = useState("")
     const [isFormOpen, setIsFormOpen] = useState(false)
