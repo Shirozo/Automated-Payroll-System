@@ -153,9 +153,16 @@ class AttendanceController extends Controller
 
     public function show(Request $request)
     {
-        $attendance = AttendanceResource::collection(
-            Attendance::with(['employee.user', 'device'])->get()
-        );
+        if (Auth::user()->type == 1) {
+            $attendance = AttendanceResource::collection(
+                Attendance::with(['employee.user', 'device'])->get()
+            );
+        } else {
+            $employee = Employee::where("user_id", Auth::user()->id)->first();
+            $attendance = AttendanceResource::collection(
+                Attendance::with(['employee.user', 'device'])->where("employee_id", "=", $employee->id)->get()
+            );
+        }
         return inertia("AttendanceLog", [
             "initAttendance" => $attendance
         ]);
