@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAttendanceRequest;
 use App\Http\Requests\UpdateAttendanceRequest;
+use App\Http\Resources\AttendanceResource;
 use App\Models\Attendance;
 use App\Models\Configuration;
 use App\Models\Device;
@@ -148,6 +149,16 @@ class AttendanceController extends Controller
                 "message" => $th->getMessage()
             ], 403);
         }
+    }
+
+    public function show(Request $request)
+    {
+        $attendance = AttendanceResource::collection(
+            Attendance::with(['employee.user', 'device'])->get()
+        );
+        return inertia("AttendanceLog", [
+            "initAttendance" => $attendance
+        ]);
     }
 
     /**
