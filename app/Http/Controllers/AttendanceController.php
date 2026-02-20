@@ -208,9 +208,10 @@ class AttendanceController extends Controller
         $lastDay = $isCurrentMonth ? now()->day : $endOfMonth->day;
 
         $formattedAttendance = [];
+        $enrolledDate = Carbon::parse($user_data->created_at)->startOfDay();
 
         for ($date = $startOfMonth->copy(); $date->lte($endOfMonth) && $date->day <= $lastDay; $date->addDay()) {
-            if ($date->isWeekend() || $date->gt(now())) {
+            if ($date->isWeekend() || $date->gt(now()) || $date->lt($enrolledDate)) {
                 continue;
             }
 
