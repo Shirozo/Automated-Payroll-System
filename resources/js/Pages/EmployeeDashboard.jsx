@@ -1,4 +1,4 @@
-import { use, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { usePage } from "@inertiajs/react";
 import axios from "axios";
@@ -15,18 +15,16 @@ export default function EmployeeDashboard() {
 
     const [hoveredDate, setHoveredDate] = useState(null)
 
-    const fetchAttendance = async (e, act) => {
-        const newDate = {
-            ...dateSelected,
-            [act]: parseInt(e.target.value)
-        }
+    const [dateSelected, setDateSelected] = useState({
+        "month": new Date().getMonth(),
+        "year": new Date().getFullYear()
+    })
 
-        setDateSelected(newDate)
-
+    const fetchAttendanceData = async (month, year) => {
         try {
             const response = await axios.get(route("attendance.all", {
-                month: newDate.month + 1,
-                year: newDate.year
+                month: month + 1,
+                year: year
             }))
             setAttendances(response.data.attendance)
         } catch (error) {
@@ -34,6 +32,19 @@ export default function EmployeeDashboard() {
         }
     }
 
+    const fetchAttendance = (e, act) => {
+        const newDate = {
+            ...dateSelected,
+            [act]: parseInt(e.target.value)
+        }
+
+        setDateSelected(newDate)
+        fetchAttendanceData(newDate.month, newDate.year)
+    }
+
+    useEffect(() => {
+        fetchAttendanceData(dateSelected.month, dateSelected.year);
+    }, []);
 
     const getDaysInMonth = (month, year) => {
         return new Date(year, month + 1, 0).getDate()
@@ -42,11 +53,6 @@ export default function EmployeeDashboard() {
     const getFirstDayOfMonth = (month, year) => {
         return new Date(year, month, 1).getDay()
     }
-
-    const [dateSelected, setDateSelected] = useState({
-        "month": new Date().getMonth(),
-        "year": new Date().getFullYear()
-    })
 
     const currentYear = new Date().getFullYear()
     const years = Array.from({ length: currentYear - 2025 + 1 }, (_, i) => 2025 + i)
