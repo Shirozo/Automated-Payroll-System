@@ -247,4 +247,39 @@ class AttendanceController extends Controller
             "attendance" => $formattedAttendance
         ], 200);
     }
+
+    public function attendanceYearMonth(Request $request) {
+        $employee = Employee::where('user_id', Auth::id())->first();
+
+        if (!$employee) {
+            return response()->json([], 200);
+        }
+
+        $availableDates = Attendance::where('employee_id', $employee->id)
+            ->select('date')
+            ->get()
+            ->map(function ($attendance) {
+                $date = Carbon::parse($attendance->date);
+                return [
+                    'month' => $date->format('F'),
+                    'year' => $date->year,
+                    'month_num' => $date->month,
+                ];
+            })
+            ->unique(function ($item) {
+                return $item['year'] . '-' . $item['month_num'];
+            })
+            ->sortByDesc(function ($item) {
+                return $item['year'] * 100 + $item['month_num'];
+            })
+            ->values()
+            ->map(function ($item) {
+                return [
+                    'month' => $item['month'],
+                    'year' => $item['year'],
+                ];
+            });
+
+        return response()->json($availableDates, 200);
+    }
 }
