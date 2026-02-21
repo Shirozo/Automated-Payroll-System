@@ -71,6 +71,9 @@ Route::group(["prefix" => "attendance", "as" => "attendance."], function() {
     Route::get("/all", [AttendanceController::class, "attendance"])
     ->middleware("auth")->name("all");
 
+    Route::get("/year-month", [AttendanceController::class, "attendanceYearMonth"])
+    ->middleware("auth")->name("year-month");
+
 });
 
 require __DIR__.'/auth.php';
