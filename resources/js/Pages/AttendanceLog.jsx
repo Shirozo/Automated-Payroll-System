@@ -1,4 +1,5 @@
 import Card, { CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/Card';
+import InputLabel from '@/Components/InputLabel';
 import Modal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
@@ -10,21 +11,47 @@ import { Edit, Plus, Search, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import { toast, ToastContainer } from 'react-toastify';
+import axios from 'axios';
 
 
 export default function AttendanceLog({ flash }) {
 
-    const { initAttendance } = usePage().props
+    const { initAttendance, auth } = usePage().props
 
     const [attendance, setAttendance] = useState(initAttendance.data)
     const [searchTerm, setSearchTerm] = useState("")
     const [isFormOpen, setIsFormOpen] = useState(false)
-    const [editingData, setEditingData] = useState(null)
+    const [dtrData, setdtrData] = useState({
+        year: "",
+        month: ""
+    })
+    const [availableDates, setAvailableDates] = useState([])
     const [sortBy, setSortBy] = useState("name")
-    const [isLoading, setIsLoading] = useState(true)
+    const [isLoading, setIsLoading] = useState(false)
 
-    const handleEditClick = (employee) => {
-        setEditingData(employee)
+    const availableYears = useMemo(() => {
+        return [...new Set(availableDates.map(d => d.year))]
+    }, [availableDates])
+
+    const availableMonths = useMemo(() => {
+        if (!dtrData.year) return []
+        return availableDates.filter(d => d.year.toString() === dtrData.year.toString()).map(d => d.month)
+    }, [availableDates, dtrData.year])
+
+    const generateDtr = (employee) => {
+        setIsLoading(true)
+
+    }
+
+    const fetchAttendance = async () => {
+        try {
+            const response = await axios.get(route('attendance.year-month'))
+            setAvailableDates(response.data)
+        } catch (error) {
+            console.error(error)
+            toast.error("Failed to fetch available dates")
+        }
+        setIsFormOpen(true)
     }
 
     const handleDelete = (id) => {
@@ -111,26 +138,6 @@ export default function AttendanceLog({ flash }) {
             cell: row => <div className="text-muted-foreground">{row.device.name}</div>,
             width: "15%"
         },
-        // {
-        //     name: 'Actions',
-        //     cell: row => (
-        //         <div className="flex gap-2">
-        //             <PrimaryButton
-        //                 onClick={() => handleEditClick(row)}
-        //                 className="rounded-lg p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-        //             >
-        //                 <Edit className="h-4 w-4" />
-        //             </PrimaryButton>
-        //             <SecondaryButton
-        //                 onClick={() => handleDelete(row.id)}
-        //                 className="rounded-lg p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-        //             >
-        //                 <Trash2 className="h-4 w-4" />
-        //             </SecondaryButton>
-        //         </div>
-        //     ),
-        //     ignoreRowClick: true,
-        // },
     ]
 
     const customStyles = {
@@ -180,6 +187,9 @@ export default function AttendanceLog({ flash }) {
                             <h1 className="text-3xl font-bold text-foreground">Attendance Logs</h1>
                             <p className="mt-2 text-sm text-muted-foreground">View, and manage attendance records</p>
                         </div>
+                        <PrimaryButton onClick={fetchAttendance} className="gap-2">
+                            Generate DTR
+                        </PrimaryButton>
                     </div>
                 </div>
             </header>
@@ -231,6 +241,69 @@ export default function AttendanceLog({ flash }) {
                     }
                 />
             </main>
+
+            <Modal show={isFormOpen} maxWidth='md'>
+                <ToastContainer />
+                <form className='p-6' onSubmit={generateDtr}>
+                    <h2 className='text-lg uppercase mb-5 font-medium text-gray-900'>
+                        Generate Daily Time Record
+                    </h2>
+
+                    <div className='mt-6'>
+                        <div className='w-full'>
+                            <InputLabel
+                                htmlFor="year"
+                                value="Year"
+                            />
+
+                            <select
+                                id='year'
+                                name='year'
+                                required={true}
+                                value={dtrData.year}
+                                onChange={(e) => setdtrData({ ...dtrData, year: e.target.value, month: "" })}
+                                className='mt-1 block w-full focus:border-green-300 outline-green-300 rounded-md border-gray-300 shadow-sm'>
+                                <option value="">Select Year</option>
+                                {availableYears.map((year) => (
+                                    <option key={year} value={year}>{year}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className='mt-6'>
+                        <div className='w-full'>
+                            <InputLabel
+                                htmlFor="month"
+                                value="Month"
+                            />
+
+                            <select
+                                id='month'
+                                name='month'
+                                required={true}
+                                value={dtrData.month}
+                                onChange={(e) => setdtrData({ ...dtrData, month: e.target.value })}
+                                className='mt-1 block w-full focus:border-green-300 outline-green-300 rounded-md border-gray-300 shadow-sm'>
+                                <option value="">Select Month</option>
+                                {availableMonths.map((month) => (
+                                    <option key={month} value={month}>{month}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className='mt-6 flex justify-end'>
+                        <SecondaryButton onClick={() => setIsFormOpen(false)} disabled={isLoading}>
+                            Cancel
+                        </SecondaryButton>
+
+                        <PrimaryButton className="ms-3" disabled={isLoading}>
+                            Add Employee
+                        </PrimaryButton>
+                    </div>
+                </form>
+            </Modal>
 
         </AuthenticatedLayout>
     );
