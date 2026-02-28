@@ -248,7 +248,8 @@ class AttendanceController extends Controller
         ], 200);
     }
 
-    public function attendanceYearMonth(Request $request) {
+    public function attendanceYearMonth(Request $request)
+    {
         $employee = Employee::where('user_id', Auth::id())->first();
 
         if (!$employee) {
@@ -281,5 +282,73 @@ class AttendanceController extends Controller
             });
 
         return response()->json($availableDates, 200);
+    }
+
+    public function upload(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt|max:2048' // Max 2MB
+        ]);
+
+        $file = $request->file('file');
+
+        $count = 0;
+
+        if (($handle = fopen($file->getRealPath(), 'r')) !== false) {
+            $header = fgetcsv($handle, 1000, ',');
+            $header = array_map('trim', $header);
+
+
+            while (($data = fgetcsv($handle, 1000, ',')) !== false) {
+                if (count($header) !== count($data)) {
+                    continue;
+                }
+
+                $row = (object) array_combine($header, $data);
+
+                $mac = trim($row->mac);
+
+                $device = Device::where("mac", "=", $mac)->first();
+                if ($device) {
+                    $action = trim($row->action);
+                    $date = trim($row->date);
+
+                    $has_attendance_entry = Attendance::where([
+                        ["device_id", "=", $device->id],
+                        ["action", "=", $action],
+                        ["date", "=", $date]
+                    ])->first();
+                    
+                    if (!$has_attendance_entry) {
+                        $finger_id = trim($row->id);
+                        $time = trim($row->time);
+                        
+                        $employee = Employee::where([
+                            ["device", "=", $mac],
+                            ["fingerprint_id", "=", $finger_id]
+                        ])->first();
+
+                        Attendance::create([
+                            "employee_id" => $employee->id,
+                            "device_id" => $device->id,
+                            "action" => $action,
+                            "date" => $date,
+                            "time" => $time
+                        ]);
+
+                        $count++;
+                    }
+                }
+            }
+
+            fclose($handle);
+
+            return response()->json([
+                'message' => $count . ' attendance have been uploaded successfully!',
+                'header' => $header
+            ], 200);
+        }
+
+        return response()->json(['message' => 'Failed to read the file.'], 500);
     }
 }
