@@ -9,6 +9,8 @@ use App\Models\Attendance;
 use App\Models\Configuration;
 use App\Models\Device;
 use App\Models\Employee;
+use App\Models\User;
+use App\Services\PdfGeneratorService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -352,5 +354,23 @@ class AttendanceController extends Controller
         }
 
         return response()->json(['message' => 'Failed to read the file.'], 500);
+    }
+
+    public function generateDTR(Request $request, PdfGeneratorService $pdfService) {
+        
+        if (Auth::user()->type == 2) {
+            $user = Auth::user();
+        } else {
+            $employee = Employee::where("id", 2)->first();
+            $user = User::where("id", $employee->user_id)->first();
+        }
+
+        $data = [
+            'employee_name' => $user->name,
+            'month' => $request->month ?? date('m'),
+            'year' => $request->year ?? date('Y'),
+        ];
+
+        return $pdfService->generateDtrPdf($data);
     }
 }
