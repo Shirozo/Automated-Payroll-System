@@ -121,23 +121,21 @@ export default function AttendanceLog({ flash }) {
                 body: formData
             })
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`)
-            }
+            const data = await response.json()
 
-            toast.success("File uploaded successfully")
-            setIsUploadModalOpen(false)
-            setFile(null)
+            if (response.ok) {
+                toast.success(data.message) 
+                setIsUploadModalOpen(false)
+                setFile(null)
+            } else {
+                toast.error(data.message || "Failed to upload the file")
+            }
         } catch (err) {
             console.error(err)
             toast.error("Failed to upload the file")
         } finally {
             setIsLoading(false)
         }
-    }
-
-    const handleDelete = (id) => {
-        setAttendance(employees.filter((emp) => emp.id !== id))
     }
 
 
