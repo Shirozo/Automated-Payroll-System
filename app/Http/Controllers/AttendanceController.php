@@ -307,36 +307,38 @@ class AttendanceController extends Controller
                 $row = (object) array_combine($header, $data);
 
                 $mac = trim($row->mac);
+                $date = trim($row->date);
+                if (Carbon::parse($date)->isWeekday()) {
 
-                $device = Device::where("mac", "=", $mac)->first();
-                if ($device) {
-                    $action = trim($row->action);
-                    $date = trim($row->date);
+                    $device = Device::where("mac", "=", $mac)->first();
+                    if ($device) {
+                        $action = trim($row->action);
 
-                    $has_attendance_entry = Attendance::where([
-                        ["device_id", "=", $device->id],
-                        ["action", "=", $action],
-                        ["date", "=", $date]
-                    ])->first();
-                    
-                    if (!$has_attendance_entry) {
-                        $finger_id = trim($row->id);
-                        $time = trim($row->time);
-                        
-                        $employee = Employee::where([
-                            ["device", "=", $mac],
-                            ["fingerprint_id", "=", $finger_id]
+                        $has_attendance_entry = Attendance::where([
+                            ["device_id", "=", $device->id],
+                            ["action", "=", $action],
+                            ["date", "=", $date]
                         ])->first();
 
-                        Attendance::create([
-                            "employee_id" => $employee->id,
-                            "device_id" => $device->id,
-                            "action" => $action,
-                            "date" => $date,
-                            "time" => $time
-                        ]);
+                        if (!$has_attendance_entry) {
+                            $finger_id = trim($row->id);
+                            $time = trim($row->time);
 
-                        $count++;
+                            $employee = Employee::where([
+                                ["device", "=", $mac],
+                                ["fingerprint_id", "=", $finger_id]
+                            ])->first();
+
+                            Attendance::create([
+                                "employee_id" => $employee->id,
+                                "device_id" => $device->id,
+                                "action" => $action,
+                                "date" => $date,
+                                "time" => $time
+                            ]);
+
+                            $count++;
+                        }
                     }
                 }
             }
