@@ -3,11 +3,9 @@ import InputLabel from '@/Components/InputLabel';
 import Modal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
-import AddUserForm from '@/form/AddUserForm';
-import EditUserForm from '@/form/EditUserForm';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, usePage } from '@inertiajs/react';
-import { Edit, Plus, Search, Trash2 } from 'lucide-react';
+import { Head, usePage } from '@inertiajs/react';
+import { Edit, Search, Trash2, UploadCloud, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import { toast, ToastContainer } from 'react-toastify';
@@ -28,6 +26,10 @@ export default function AttendanceLog({ flash }) {
     const [availableDates, setAvailableDates] = useState([])
     const [sortBy, setSortBy] = useState("name")
     const [isLoading, setIsLoading] = useState(false)
+
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
+    const [file, setFile] = useState(null)
+    const [isDragging, setIsDragging] = useState(false)
 
     const availableYears = useMemo(() => {
         return [...new Set(availableDates.map(d => d.year))]
@@ -52,6 +54,86 @@ export default function AttendanceLog({ flash }) {
             toast.error("Failed to fetch available dates")
         }
         setIsFormOpen(true)
+    }
+
+    const handleDragOver = (e) => {
+        e.preventDefault()
+        setIsDragging(true)
+    }
+
+    const handleDragLeave = (e) => {
+        e.preventDefault()
+        setIsDragging(false)
+    }
+
+    const handleDrop = (e) => {
+        e.preventDefault()
+        setIsDragging(false)
+        
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            const droppedFile = e.dataTransfer.files[0]
+            const validTypes = [
+                "text/csv"
+            ]
+            
+            if (validTypes.includes(droppedFile.type) || droppedFile.name.endsWith('.csv')) {
+                setFile(droppedFile)
+            } else {
+                toast.error("Please upload a CSV file (.csv)")
+            }
+        }
+    }
+
+    const handleFileChange = (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const selectedFile = e.target.files[0]
+            const validTypes = [
+                "text/csv"
+            ]
+            
+            if (validTypes.includes(selectedFile.type) || selectedFile.name.endsWith('.csv')) {
+                setFile(selectedFile)
+            } else {
+                toast.error("Please upload a CSV file (.csv)")
+            }
+        }
+    }
+
+    const handleUpload = async (e) => {
+        e.preventDefault()
+        if (!file) {
+            toast.error("Please select a file to upload.")
+            return
+        }
+        
+        const formData = new FormData()
+        formData.append("file", file)
+        
+        try {
+            setIsLoading(true)
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+            const response = await fetch(route('attendance.upload'), {
+                method: 'POST',
+                headers: {
+                    ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
+                    'Accept': 'application/json',
+                },
+                body: formData
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            toast.success("File uploaded successfully")
+            setIsUploadModalOpen(false)
+            setFile(null)
+        } catch (err) {
+            console.error(err)
+            toast.error("Failed to upload the file")
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     const handleDelete = (id) => {
@@ -187,9 +269,16 @@ export default function AttendanceLog({ flash }) {
                             <h1 className="text-3xl font-bold text-foreground">Attendance Logs</h1>
                             <p className="mt-2 text-sm text-muted-foreground">View, and manage attendance records</p>
                         </div>
-                        <PrimaryButton onClick={fetchAttendance} className="gap-2">
-                            Generate DTR
-                        </PrimaryButton>
+                        <div className='flex gap-3'>
+                            <PrimaryButton onClick={fetchAttendance} className="gap-2">
+                                Generate DTR
+                            </PrimaryButton>
+                            {auth.user.type == 1 && (
+                                <PrimaryButton onClick={() => setIsUploadModalOpen(true)} className="gap-2">
+                                    Upload Attendance
+                                </PrimaryButton>
+                            )}
+                        </div>
                     </div>
                 </div>
             </header>
@@ -304,6 +393,60 @@ export default function AttendanceLog({ flash }) {
                     </div>
                 </form>
             </Modal>
+
+            <Modal show={isUploadModalOpen} maxWidth='md'>
+                <form className='p-6' onSubmit={handleUpload}>
+                    <div className="flex justify-between items-center mb-5">
+                        <h2 className='text-lg font-medium text-gray-900'>
+                            Upload Attendance Log
+                        </h2>
+                        <button type="button" onClick={() => { setIsUploadModalOpen(false); setFile(null); }} className="text-gray-400 hover:text-gray-500">
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+
+                    <div 
+                        className={`mt-4 relative border-2 border-dashed rounded-lg p-10 flex flex-col items-center justify-center transition-colors ${isDragging ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-green-400'}`}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                    >
+                        <UploadCloud className={`w-12 h-12 mb-4 ${isDragging ? 'text-green-500' : 'text-gray-400'}`} />
+                        <p className="mb-2 text-sm text-gray-500 text-center">
+                            <span className="font-semibold">Click to upload</span> or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-500 text-center">CSV files only (.csv)</p>
+                        <input 
+                            type="file" 
+                            className="hidden" 
+                            accept=".csv, text/csv" 
+                            onChange={handleFileChange}
+                            id="file-upload"
+                        />
+                        <label htmlFor="file-upload" className="absolute inset-0 cursor-pointer"></label>
+                    </div>
+
+                    {file && (
+                        <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-md flex items-center justify-between">
+                            <span className="text-sm text-gray-700 truncate mr-4">{file.name}</span>
+                            <button type="button" onClick={() => setFile(null)} className="text-red-500 hover:text-red-700">
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
+
+                    <div className='mt-6 flex justify-end'>
+                        <SecondaryButton type="button" onClick={() => { setIsUploadModalOpen(false); setFile(null); }} disabled={isLoading}>
+                            Cancel
+                        </SecondaryButton>
+
+                        <PrimaryButton className="ms-3" disabled={isLoading || !file}>
+                            Upload
+                        </PrimaryButton>
+                    </div>
+                </form>
+            </Modal>
+
 
         </AuthenticatedLayout>
     );
