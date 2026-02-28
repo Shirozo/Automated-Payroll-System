@@ -66,13 +66,16 @@ Route::group(["prefix" => "attendance", "as" => "attendance."], function() {
     Route::get("/", [AttendanceController::class, "show"])->name("show");
     
     Route::post("/store", [AttendanceController::class, "store"])->name("store")
-    ->withoutMiddleware([VerifyCsrfToken::class]);
+    ->withoutMiddleware([VerifyCsrfToken::class, "auth"]);
 
     Route::get("/all", [AttendanceController::class, "attendance"])
     ->middleware("auth")->name("all");
 
     Route::get("/year-month", [AttendanceController::class, "attendanceYearMonth"])
     ->middleware("auth")->name("year-month");
+
+     Route::post("/upload", [AttendanceController::class, "upload"])
+    ->middleware("auth")->name("upload");
 
 });
 
