@@ -40,9 +40,21 @@ export default function AttendanceLog({ flash }) {
         return availableDates.filter(d => d.year.toString() === dtrData.year.toString()).map(d => d.month)
     }, [availableDates, dtrData.year])
 
-    const generateDtr = (employee) => {
-        setIsLoading(true)
+    const generateDtr = async (e) => {
+        e.preventDefault()
+        try {
+            const response = await fetch(route('attendance.dtr', dtrData))
+            if (response.ok) {
+                const url = route('attendance.dtr', dtrData);
+                window.open(url, '_blank');
+            } else {
+                toast.error(data.message || "Failed to Generate DTR!")
+            }
 
+        } catch (error) {
+            console.error(error)
+            toast.error("Failed to fetch available dates")
+        }
     }
 
     const fetchAttendance = async () => {
@@ -69,13 +81,13 @@ export default function AttendanceLog({ flash }) {
     const handleDrop = (e) => {
         e.preventDefault()
         setIsDragging(false)
-        
+
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
             const droppedFile = e.dataTransfer.files[0]
             const validTypes = [
                 "text/csv"
             ]
-            
+
             if (validTypes.includes(droppedFile.type) || droppedFile.name.endsWith('.csv')) {
                 setFile(droppedFile)
             } else {
@@ -90,7 +102,7 @@ export default function AttendanceLog({ flash }) {
             const validTypes = [
                 "text/csv"
             ]
-            
+
             if (validTypes.includes(selectedFile.type) || selectedFile.name.endsWith('.csv')) {
                 setFile(selectedFile)
             } else {
@@ -105,10 +117,10 @@ export default function AttendanceLog({ flash }) {
             toast.error("Please select a file to upload.")
             return
         }
-        
+
         const formData = new FormData()
         formData.append("file", file)
-        
+
         try {
             setIsLoading(true)
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
@@ -124,7 +136,7 @@ export default function AttendanceLog({ flash }) {
             const data = await response.json()
 
             if (response.ok) {
-                toast.success(data.message) 
+                toast.success(data.message)
                 setIsUploadModalOpen(false)
                 setFile(null)
             } else {
@@ -386,7 +398,7 @@ export default function AttendanceLog({ flash }) {
                         </SecondaryButton>
 
                         <PrimaryButton className="ms-3" disabled={isLoading}>
-                            Add Employee
+                            Generate DTR
                         </PrimaryButton>
                     </div>
                 </form>
@@ -403,7 +415,7 @@ export default function AttendanceLog({ flash }) {
                         </button>
                     </div>
 
-                    <div 
+                    <div
                         className={`mt-4 relative border-2 border-dashed rounded-lg p-10 flex flex-col items-center justify-center transition-colors ${isDragging ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-green-400'}`}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
@@ -414,10 +426,10 @@ export default function AttendanceLog({ flash }) {
                             <span className="font-semibold">Click to upload</span> or drag and drop
                         </p>
                         <p className="text-xs text-gray-500 text-center">CSV files only (.csv)</p>
-                        <input 
-                            type="file" 
-                            className="hidden" 
-                            accept=".csv, text/csv" 
+                        <input
+                            type="file"
+                            className="hidden"
+                            accept=".csv, text/csv"
                             onChange={handleFileChange}
                             id="file-upload"
                         />
