@@ -376,7 +376,10 @@ class AttendanceController extends Controller
                 $user = Auth::user();
                 $employee = Employee::where('user_id', $user->id)->first();
             } else {
-                $employee = Employee::where("id", 2)->first();
+                if (!$request->has("employee_id")) {
+                    return response()->json(['message' => 'Requires an employee.'], 500);
+                }
+                $employee = Employee::where("id", $request->employee_id)->first();
                 $user = User::where("id", $employee->user_id)->first();
             }
 
