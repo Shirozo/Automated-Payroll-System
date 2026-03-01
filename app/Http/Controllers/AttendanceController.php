@@ -359,75 +359,71 @@ class AttendanceController extends Controller
     public function generateDTR(Request $request, PdfGeneratorService $pdfService)
     {
 
-        // if ($request->has("year") && $request->has("month")) {
-
-
-        if (Auth::user()->type == 2) {
-            $user = Auth::user();
-            $employee = Employee::where('user_id', $user->id)->first();
-        } else {
-            $employee = Employee::where("id", 2)->first();
-            $user = User::where("id", $employee->user_id)->first();
-        }
-
-        $monthStr = $request->month ?? date('m');
-        $yearInt = $request->year ?? date('Y');
-
-        // $dateForMonth = Carbon::parse("1 $monthStr $yearInt");
-        $dateForMonth = Carbon::parse("1 February 2026");
-        $startOfMonth = $dateForMonth->copy()->startOfMonth();
-        $endOfMonth = $dateForMonth->copy()->endOfMonth();
-
-        $attendances = Attendance::where('employee_id', $employee->id)
-            ->whereYear('date', $dateForMonth->year)
-            ->whereMonth('date', $dateForMonth->month)
-            ->get()
-            ->groupBy('date');
-
-
-        $attendanceData = [];
-
-
-
-        for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
-            $am_in = '';
-            $am_out = '';
-            $pm_in = '';
-            $pm_out = '';
-
-            if (!$date->isWeekend()) {
-                $dateString = $date->format('Y-m-d');
-                
-                if ($attendances->has($dateString)) {
-                    $dayAttendance = $attendances->get($dateString);
-
-                    $am_in = $dayAttendance->where('action', 'am_login')->first()?->time ?? '';
-                    $am_out = $dayAttendance->where('action', 'am_logout')->first()?->time ?? '';
-                    $pm_in = $dayAttendance->where('action', 'pm_login')->first()?->time ?? '';
-                    $pm_out = $dayAttendance->where('action', 'pm_logout')->first()?->time ?? '';
-                }
+        if ($request->has("year") && $request->has("month")) {
+            if (Auth::user()->type == 2) {
+                $user = Auth::user();
+                $employee = Employee::where('user_id', $user->id)->first();
+            } else {
+                $employee = Employee::where("id", 2)->first();
+                $user = User::where("id", $employee->user_id)->first();
             }
 
-            $attendanceData[] = [
-                'date' => $date->day,
-                'am_in' => $am_in,
-                'am_out' => $am_out,
-                'pm_in' => $pm_in,
-                'pm_out' => $pm_out,
+            $monthStr = date("F", mktime(0, 0, 0, $request->month, 1));
+            $yearInt = $request->year ?? date('Y');
+
+            $dateForMonth = Carbon::parse("1 $monthStr $yearInt");
+            $startOfMonth = $dateForMonth->copy()->startOfMonth();
+            $endOfMonth = $dateForMonth->copy()->endOfMonth();
+
+            $attendances = Attendance::where('employee_id', $employee->id)
+                ->whereYear('date', $dateForMonth->year)
+                ->whereMonth('date', $dateForMonth->month)
+                ->get()
+                ->groupBy('date');
+
+
+            $attendanceData = [];
+
+
+
+            for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
+                $am_in = '';
+                $am_out = '';
+                $pm_in = '';
+                $pm_out = '';
+
+                if (!$date->isWeekend()) {
+                    $dateString = $date->format('Y-m-d');
+
+                    if ($attendances->has($dateString)) {
+                        $dayAttendance = $attendances->get($dateString);
+
+                        $am_in = $dayAttendance->where('action', 'am_login')->first()?->time ?? '';
+                        $am_out = $dayAttendance->where('action', 'am_logout')->first()?->time ?? '';
+                        $pm_in = $dayAttendance->where('action', 'pm_login')->first()?->time ?? '';
+                        $pm_out = $dayAttendance->where('action', 'pm_logout')->first()?->time ?? '';
+                    }
+                }
+
+                $attendanceData[] = [
+                    'date' => $date->day,
+                    'am_in' => $am_in,
+                    'am_out' => $am_out,
+                    'pm_in' => $pm_in,
+                    'pm_out' => $pm_out,
+                ];
+            }
+
+            $data = [
+                'employee_name' => $user->name,
+                'month' => $dateForMonth->format('F'),
+                'year' => $dateForMonth->year,
+                'attendance' => $attendanceData,
             ];
+
+            return $pdfService->generateDtrPdf($data);
+        } else {
+            return response()->json(['message' => 'Failed to create DTR.'], 500);
         }
-
-        $data = [
-            'employee_name' => $user->name,
-            'month' => $dateForMonth->format('F'),
-            'year' => $dateForMonth->year,
-            'attendance' => $attendanceData,
-        ];
-
-        return $pdfService->generateDtrPdf($data, $attendanceData);
-        // } 
-        // else {
-        // return response()->json(['message' => 'Failed to create DTR.'], 500);
-        // }
     }
 }
