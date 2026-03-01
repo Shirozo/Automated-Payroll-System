@@ -14,14 +14,15 @@ import axios from 'axios';
 
 export default function AttendanceLog({ flash }) {
 
-    const { initAttendance, auth } = usePage().props
+    const { initAttendance, auth, employee } = usePage().props
 
     const [attendance, setAttendance] = useState(initAttendance.data)
     const [searchTerm, setSearchTerm] = useState("")
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [dtrData, setdtrData] = useState({
         year: "",
-        month: ""
+        month: "",
+        employee_id: ""
     })
     const [availableDates, setAvailableDates] = useState([])
     const [sortBy, setSortBy] = useState("name")
@@ -57,13 +58,21 @@ export default function AttendanceLog({ flash }) {
         }
     }
 
-    const fetchAttendance = async () => {
+    const fetchAttendance = async (id) => {
         try {
-            const response = await axios.get(route('attendance.year-month'))
+            console.log(id)
+            const response = await axios.get(route('attendance.year-month', { id: id }))
             setAvailableDates(response.data)
         } catch (error) {
             console.error(error)
             toast.error("Failed to fetch available dates")
+        }
+        setIsFormOpen(true)
+    }
+
+    const notAdminfetchAttendance = () => {
+        if (auth.user.type != 1) {
+            fetchAttendance()
         }
         setIsFormOpen(true)
     }
@@ -280,7 +289,7 @@ export default function AttendanceLog({ flash }) {
                             <p className="mt-2 text-sm text-muted-foreground">View, and manage attendance records</p>
                         </div>
                         <div className='flex gap-3'>
-                            <PrimaryButton onClick={fetchAttendance} className="gap-2">
+                            <PrimaryButton onClick={notAdminfetchAttendance} className="gap-2">
                                 Generate DTR
                             </PrimaryButton>
                             {auth.user.type == 1 && (
@@ -294,7 +303,6 @@ export default function AttendanceLog({ flash }) {
             </header>
 
             <main className="mx-auto w-full px-8 py-6">
-                {/* Search and Filter */}
                 <Card className="border border-border">
                     <CardContent className="pt-6">
                         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -347,6 +355,33 @@ export default function AttendanceLog({ flash }) {
                     <h2 className='text-lg uppercase mb-5 font-medium text-gray-900'>
                         Generate Daily Time Record
                     </h2>
+
+                    {auth.user.type == 1 && (
+                        <div className='mt-6'>
+                            <div className='w-full'>
+                                <InputLabel
+                                    htmlFor="employee_id"
+                                    value="Employee"
+                                />
+
+                                <select
+                                    id='employee_id'
+                                    name='employee_id'
+                                    required={true}
+                                    value={dtrData.employee_id}
+                                    onChange={(e) => {
+                                        setdtrData({ ...dtrData, employee_id: e.target.value })
+                                        fetchAttendance(e.target.value)
+                                    }}
+                                    className='mt-1 block w-full focus:border-green-300 outline-green-300 rounded-md border-gray-300 shadow-sm'>
+                                    <option value="">Select Employee</option>
+                                    {employee.map((e) => (
+                                        <option key={e.id} value={e.id}>{e.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    )}
 
                     <div className='mt-6'>
                         <div className='w-full'>
