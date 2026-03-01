@@ -368,7 +368,7 @@ class AttendanceController extends Controller
                 $user = User::where("id", $employee->user_id)->first();
             }
 
-            $monthStr = date("F", mktime(0, 0, 0, $request->month, 1));
+            $monthStr = $request->month;
             $yearInt = $request->year ?? date('Y');
 
             $dateForMonth = Carbon::parse("1 $monthStr $yearInt");
@@ -380,6 +380,10 @@ class AttendanceController extends Controller
                 ->whereMonth('date', $dateForMonth->month)
                 ->get()
                 ->groupBy('date');
+
+            if ($attendances->count() <= 0) {
+                return response()->json(['message' => 'No Data to Show.'], 500);
+            }
 
 
             $attendanceData = [];
