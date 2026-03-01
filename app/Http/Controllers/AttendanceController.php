@@ -159,14 +159,23 @@ class AttendanceController extends Controller
             $attendance = AttendanceResource::collection(
                 Attendance::with(['employee.user', 'device'])->get()
             );
+
+            $employees = Employee::with('user')->get()->map(function ($employee) {
+                return [
+                    'id' => $employee->id,
+                    'name' => $employee->user->name ?? 'Unknown',
+                ];
+            });
         } else {
             $employee = Employee::where("user_id", Auth::user()->id)->first();
+            $employees = [];
             $attendance = AttendanceResource::collection(
                 Attendance::with(['employee.user', 'device'])->where("employee_id", "=", $employee->id)->get()
             );
         }
         return inertia("AttendanceLog", [
-            "initAttendance" => $attendance
+            "initAttendance" => $attendance,
+            "employee" => $employees
         ]);
     }
 
@@ -252,8 +261,11 @@ class AttendanceController extends Controller
 
     public function attendanceYearMonth(Request $request)
     {
-        $employee = Employee::where('user_id', Auth::id())->first();
-
+        if (Auth::user()->type == 1) {
+            $employee = Employee::where('id', $request->id)->first();
+        } else {
+            $employee = Employee::where('user_id', Auth::id())->first();
+        }
         if (!$employee) {
             return response()->json([], 200);
         }
