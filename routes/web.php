@@ -7,7 +7,6 @@ use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -38,6 +37,8 @@ Route::group(["prefix" => "employee", "as" => "employee.", "middleware" => ["aut
     Route::post("/store", [EmployeeController::class, "store"])->name("store");
 
     Route::put("/update/employee/{employee}", [EmployeeController::class, "update"])->name("update");
+
+    Route::put("/update/device/id/{employee}", [EmployeeController::class, "updateDevice"])->name("device");
 });
 
 Route::group(["prefix" => "position", "as" => "position.", "middleware" => ["auth"]], function () {
