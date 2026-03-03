@@ -1,4 +1,4 @@
-import { useForm } from "@inertiajs/react"
+import { router, useForm } from "@inertiajs/react"
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
@@ -10,6 +10,7 @@ import { toast, ToastContainer } from "react-toastify";
 
 
 export default function EditUserForm({ closeModal, positions, user_data }) {
+
     const {
         data: addData,
         setData: setAddData,
@@ -70,9 +71,21 @@ export default function EditUserForm({ closeModal, positions, user_data }) {
             const data = await response.json()
 
             if (data.success) {
-                setAddData("device", device)
-                setAddData("fingerprint_id", data.fingerprint_id)
-                setMessageR("Fingerprint Capture Success!")
+                 try {
+                    await axios.put(route("employee.device", { employee: user_data.id }), {
+                        mac: deviceSelected.mac,
+                        fingerprint_id: data.fingerprint_id
+                    });
+
+                    setAddData("device", device)
+                    setAddData("fingerprint_id", data.fingerprint_id)
+                    toast.success("Employee device and fingerprint updated!")
+                    setMessageR("Fingerprint Capture Success!")
+                } catch (srvErr) {
+                    console.error("Failed to sync with server:", srvErr);
+                    toast.error("Captured, but failed to update employee device on the server!")
+                }
+
             } else {
                 toast.error("Failed to capture fingerprint!")
             }
