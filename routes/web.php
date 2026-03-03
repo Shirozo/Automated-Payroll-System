@@ -5,6 +5,7 @@ use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -83,5 +84,13 @@ Route::group(["prefix" => "attendance", "as" => "attendance."], function () {
     Route::get("/generate/dtr", [AttendanceController::class, "generateDTR"])->name("dtr")
         ->middleware("auth");
 });
+
+Route::group(["prefix" => "payroll", "as" => "payroll.", "middleware" => ["auth"]], function () {
+
+    Route::get("/", [PayrollController::class, "show"])->name("show");
+
+    Route::post("/store", [PayrollController::class, "store"])->name("store");
+});
+
 
 require __DIR__ . '/auth.php';
