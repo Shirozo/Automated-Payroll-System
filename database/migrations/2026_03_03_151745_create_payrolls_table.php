@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string("name");
             $table->float("amount")->nullable();
             $table->integer("employee_count")->nullable();
+            $table->enum("deduction", ["retiree", "death_aid", "healthcare"]);
             $table->boolean("viewable")->default(false);
             $table->timestamps();
         });
