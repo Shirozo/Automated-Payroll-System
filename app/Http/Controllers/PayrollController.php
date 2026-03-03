@@ -3,25 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePayrollRequest;
-use App\Http\Requests\UpdatePayrollRequest;
 use App\Models\Payroll;
+use App\Services\PayrollService;
+use Illuminate\Http\Request;
 
 class PayrollController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function view(Request $request, PayrollService $payrollService)
     {
         //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return $payrollService->generatePayrollPdf([]);
     }
 
     /**
@@ -36,30 +30,6 @@ class PayrollController extends Controller
      * Display the specified resource.
      */
     public function show(Payroll $payroll)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Payroll $payroll)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePayrollRequest $request, Payroll $payroll)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Payroll $payroll)
     {
         //
     }
