@@ -21,6 +21,11 @@ class StoreAttendanceRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [];
+        return [
+            "device_mac" => "required|mac_address",
+            "fingerprint_id" => "required|integer",
+            "action" => "required|in:login,logout",
+            "time" => "required|string",
+        ];
     }
 }
