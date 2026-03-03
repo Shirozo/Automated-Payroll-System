@@ -37,13 +37,15 @@ class DeviceController extends Controller
 
     public function online(Request $request)
     {
-        $onlineThreshold = Carbon::now("Asia/Manila")->subMinutes(2);
+        $onlineThreshold = Carbon::now("Asia/Manila")->subSeconds(10);
 
+        
         // $devices = Device::where('status', 'online')
         //     ->where('last_seen', '>=', $onlineThreshold)
         //     ->get();
-
         $devices = Device::where('last_seen', '>=', $onlineThreshold)->get();
+        
+        dd($devices);
 
         return response()->json([
             'success' => true,
