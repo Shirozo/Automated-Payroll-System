@@ -4,7 +4,7 @@ import Modal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { Edit, Search, Trash2, UploadCloud, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import DataTable from 'react-data-table-component';
@@ -22,31 +22,27 @@ export default function Payroll({ flash }) {
     const [attendance, setAttendance] = useState(initAttendance.data)
     const [searchTerm, setSearchTerm] = useState("")
     const [isFormOpen, setIsFormOpen] = useState(false)
-    const [dtrData, setdtrData] = useState({
+
+    const {
+        data,
+        setData,
+        post,
+        resetAndClearErrors,
+        errors,
+        processing,
+    } = useForm({
         year: "",
         month: "",
     })
 
     const availableYears = availableDates ? [...new Set(availableDates.map(d => d.year))].sort((a, b) => a - b) : []
 
-    const availableMonths = availableDates ? availableDates.filter(d => d.year.toString() === dtrData.year.toString()).map(d => d.month).sort((a, b) => new Date(`${a} 1, 2000`) - new Date(`${b} 1, 2000`)) : []
+    const availableMonths = availableDates ? availableDates.filter(d => d.year.toString() === data.year.toString()).map(d => d.month).sort((a, b) => new Date(`${a} 1, 2000`) - new Date(`${b} 1, 2000`)) : []
 
 
-    const generateDtr = async (e) => {
+    const generatePayroll = (e) => {
         e.preventDefault()
-        try {
-            const response = await fetch(route('attendance.dtr', dtrData))
-            if (response.ok) {
-                const url = route('attendance.dtr', dtrData);
-                window.open(url, '_blank');
-            } else {
-                toast.error(data.message || "Failed to Generate DTR!")
-            }
-
-        } catch (error) {
-            console.error(error)
-            toast.error("Failed to fetch available dates")
-        }
+        console.log(data)
     }
 
 
@@ -183,7 +179,7 @@ export default function Payroll({ flash }) {
 
                 <DataTable
                     columns={columns}
-                    data={attendance}
+                    data={filteredAttendance}
                     pagination
                     paginationPerPage={10}
                     paginationRowsPerPageOptions={[5, 10, 15, 20]}
@@ -200,7 +196,7 @@ export default function Payroll({ flash }) {
 
             <Modal show={isFormOpen} maxWidth='md'>
                 <ToastContainer />
-                <form className='p-6' onSubmit={generateDtr}>
+                <form className='p-6' onSubmit={generatePayroll}>
                     <h2 className='text-lg uppercase mb-5 font-medium text-gray-900'>
                         Generate Payroll
                     </h2>
@@ -215,8 +211,8 @@ export default function Payroll({ flash }) {
                                 id='year'
                                 name='year'
                                 required={true}
-                                value={dtrData.year}
-                                onChange={(e) => setdtrData({ ...dtrData, year: e.target.value, month: "" })}
+                                value={data.year}
+                                onChange={(e) => setData({ ...data, year: e.target.value, month: "" })}
                                 className='mt-1 block w-full focus:border-green-300 outline-green-300 rounded-md border-gray-300 shadow-sm'>
                                 <option value="">Select Year</option>
                                 {availableYears.map((year) => (
@@ -237,13 +233,34 @@ export default function Payroll({ flash }) {
                                 id='month'
                                 name='month'
                                 required={true}
-                                value={dtrData.month}
-                                onChange={(e) => setdtrData({ ...dtrData, month: e.target.value })}
+                                value={data.month}
+                                onChange={(e) => setData({ ...data, month: e.target.value })}
                                 className='mt-1 block w-full focus:border-green-300 outline-green-300 rounded-md border-gray-300 shadow-sm'>
                                 <option value="">Select Month</option>
                                 {availableMonths.map((month) => (
                                     <option key={month} value={month}>{month}</option>
                                 ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className='mt-6'>
+                        <div className='w-full'>
+                            <InputLabel
+                                htmlFor="deduction"
+                                value="Deduction"
+                            />
+
+                            <select
+                                id='deduction'
+                                name='deduction'
+                                required={true}
+                                value={data.deduction}
+                                onChange={(e) => setData({ ...data, deduction: e.target.value })}
+                                className='mt-1 block w-full focus:border-green-300 outline-green-300 rounded-md border-gray-300 shadow-sm'>
+                                <option value="retiree">Retiree Financial Assistant</option>
+                                <option value="death_aid">Death Aid</option>
+                                <option value="healthcare">Healthcare</option>
                             </select>
                         </div>
                     </div>
