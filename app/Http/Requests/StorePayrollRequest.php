@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StorePayrollRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StorePayrollRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::user()->type == 1;
     }
 
     /**
@@ -23,6 +24,9 @@ class StorePayrollRequest extends FormRequest
     {
         return [
             //
+            "year" => "required|numeric",
+            "month" => "required|string",
+            "deduction" => "required|in:retiree,death_aid,healtcare"
         ];
     }
 }
