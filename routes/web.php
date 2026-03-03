@@ -90,6 +90,8 @@ Route::group(["prefix" => "payroll", "as" => "payroll.", "middleware" => ["auth"
     Route::get("/", [PayrollController::class, "show"])->name("show");
 
     Route::post("/store", [PayrollController::class, "store"])->name("store");
+
+    Route::get("/view", [PayrollController::class, "view"])->name("store");
 });
 
 
