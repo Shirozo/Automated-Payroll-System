@@ -26,7 +26,7 @@ class StorePayrollRequest extends FormRequest
             //
             "year" => "required|numeric",
             "month" => "required|string",
-            "deduction" => "required|in:retiree,death_aid,healtcare"
+            "deduction" => "required|in:retiree,death_aid,healthcare"
         ];
     }
 }
