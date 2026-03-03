@@ -15,7 +15,7 @@ import axios from 'axios';
 export default function Payroll({ flash }) {
 
     // const { initAttendance, auth, employee } = usePage().props
-    const { auth, availableDates } = usePage().props
+    const { auth, availableDates, payroll } = usePage().props
     const initAttendance = []
     const employee = []
 
@@ -33,6 +33,7 @@ export default function Payroll({ flash }) {
     } = useForm({
         year: "",
         month: "",
+        deduction: "",
     })
 
     const availableYears = availableDates ? [...new Set(availableDates.map(d => d.year))].sort((a, b) => a - b) : []
@@ -42,20 +43,28 @@ export default function Payroll({ flash }) {
 
     const generatePayroll = (e) => {
         e.preventDefault()
-        console.log(data)
+        post(route("payroll.store"), {
+            preserveScroll: true,
+            onSuccess: (page) => {
+                resetAndClearErrors()
+            },
+            onError: (page) => {
+                toast.error("Error creating payroll!")
+            }
+        })
     }
 
 
-    const filteredAttendance = useMemo(() => {
-        if (attendance) {
-            return attendance.filter(
+    const filteredPayroll = useMemo(() => {
+        if (payroll) {
+            return payroll.filter(
                 (e) =>
-                    e.user.name.toLowerCase().includes(searchTerm.toLowerCase())
+                    e.name.toLowerCase().includes(searchTerm.toLowerCase())
                 // emp.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 // emp.department.toLowerCase().includes(searchTerm.toLowerCase())
             )
         }
-    }, [attendance, searchTerm])
+    }, [payroll, searchTerm])
 
     useEffect(() => {
         if (flash.message.success) {
@@ -70,35 +79,35 @@ export default function Payroll({ flash }) {
     const columns = [
         {
             name: 'Name',
-            selector: row => row.user.name,
+            selector: row => row.name,
             sortable: true,
-            cell: row => <div className="font-medium text-foreground">{row.user.name}</div>,
+            cell: row => <div className="font-medium text-foreground">{row.name}</div>,
             width: "20%"
         },
-        {
-            name: 'Date',
-            selector: row => row.date,
-            sortable: true,
-            cell: row => <div className="text-muted-foreground">{row.date}</div>,
-            width: "15%"
-        },
-        {
-            name: 'Time',
-            selector: row => row.time,
-            sortable: true,
-            cell: row => {
-                const time = new Date(`1970-01-01T${row.time}`);
-                return <div className="font-medium text-foreground">{time.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}</div>;
-            },
-            width: "20%"
-        },
-        {
-            name: 'Device',
-            selector: row => row.device.name,
-            sortable: true,
-            cell: row => <div className="text-muted-foreground">{row.device.name}</div>,
-            width: "15%"
-        },
+        // {
+        //     name: 'Date',
+        //     selector: row => row.date,
+        //     sortable: true,
+        //     cell: row => <div className="text-muted-foreground">{row.date}</div>,
+        //     width: "15%"
+        // },
+        // {
+        //     name: 'Time',
+        //     selector: row => row.time,
+        //     sortable: true,
+        //     cell: row => {
+        //         const time = new Date(`1970-01-01T${row.time}`);
+        //         return <div className="font-medium text-foreground">{time.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}</div>;
+        //     },
+        //     width: "20%"
+        // },
+        // {
+        //     name: 'Device',
+        //     selector: row => row.device.name,
+        //     sortable: true,
+        //     cell: row => <div className="text-muted-foreground">{row.device.name}</div>,
+        //     width: "15%"
+        // },
     ]
 
     const customStyles = {
@@ -145,8 +154,8 @@ export default function Payroll({ flash }) {
                 <div className="mx-auto px-8 py-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold text-foreground">Attendance Logs</h1>
-                            <p className="mt-2 text-sm text-muted-foreground">View, and manage attendance records</p>
+                            <h1 className="text-3xl font-bold text-foreground">Payroll</h1>
+                            <p className="mt-2 text-sm text-muted-foreground">View, and manage payroll records</p>
                         </div>
                         <div className='flex gap-3'>
                             {auth.user.type == 1 && (
@@ -179,7 +188,7 @@ export default function Payroll({ flash }) {
 
                 <DataTable
                     columns={columns}
-                    data={filteredAttendance}
+                    data={filteredPayroll}
                     pagination
                     paginationPerPage={10}
                     paginationRowsPerPageOptions={[5, 10, 15, 20]}
@@ -195,7 +204,6 @@ export default function Payroll({ flash }) {
             </main>
 
             <Modal show={isFormOpen} maxWidth='md'>
-                <ToastContainer />
                 <form className='p-6' onSubmit={generatePayroll}>
                     <h2 className='text-lg uppercase mb-5 font-medium text-gray-900'>
                         Generate Payroll
@@ -210,7 +218,7 @@ export default function Payroll({ flash }) {
                             <select
                                 id='year'
                                 name='year'
-                                required={true}
+                                required
                                 value={data.year}
                                 onChange={(e) => setData({ ...data, year: e.target.value, month: "" })}
                                 className='mt-1 block w-full focus:border-green-300 outline-green-300 rounded-md border-gray-300 shadow-sm'>
@@ -232,7 +240,7 @@ export default function Payroll({ flash }) {
                             <select
                                 id='month'
                                 name='month'
-                                required={true}
+                                required
                                 value={data.month}
                                 onChange={(e) => setData({ ...data, month: e.target.value })}
                                 className='mt-1 block w-full focus:border-green-300 outline-green-300 rounded-md border-gray-300 shadow-sm'>
@@ -254,7 +262,7 @@ export default function Payroll({ flash }) {
                             <select
                                 id='deduction'
                                 name='deduction'
-                                required={true}
+                                required
                                 value={data.deduction}
                                 onChange={(e) => setData({ ...data, deduction: e.target.value })}
                                 className='mt-1 block w-full focus:border-green-300 outline-green-300 rounded-md border-gray-300 shadow-sm'>
@@ -266,11 +274,11 @@ export default function Payroll({ flash }) {
                     </div>
 
                     <div className='mt-6 flex justify-end'>
-                        <SecondaryButton onClick={() => setIsFormOpen(false)} disabled={false}>
+                        <SecondaryButton onClick={() => setIsFormOpen(false)} disabled={processing}>
                             Cancel
                         </SecondaryButton>
 
-                        <PrimaryButton className="ms-3" disabled={false}>
+                        <PrimaryButton className="ms-3" disabled={processing}>
                             Generate Payroll
                         </PrimaryButton>
                     </div>
