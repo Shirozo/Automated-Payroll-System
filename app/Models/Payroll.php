@@ -9,4 +9,15 @@ class Payroll extends Model
 {
     /** @use HasFactory<\Database\Factories\PayrollFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        "name",
+        "amount",
+        "employee_count",
+        "viewable",
+    ];
+
+    public function payrollData() {
+        return $this->hasMany(PayrollData::class);
+    }
 }
