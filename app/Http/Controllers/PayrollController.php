@@ -26,6 +26,22 @@ class PayrollController extends Controller
     public function store(StorePayrollRequest $request)
     {
         //
+        $request->validated();
+
+        $name_helper = [
+            "retiree" => "Retiree Financial Assistant",
+            "death_aid" => "Death Aid",
+            "healthcare" => "Healthcare",
+        ];
+
+        Payroll::create([
+            "name" => $request->month . " " . $request->year . " Payroll (" . $name_helper[$request->deduction] . ")",
+            "deduction" => $request->deduction,
+            "month" => $request->month,
+            "year" => $request->year,
+        ]);
+
+        return redirect()->route("payroll.show")->with("success", "Payroll Created!");
     }
 
     /**
@@ -58,9 +74,12 @@ class PayrollController extends Controller
                     'year' => $item['year'],
                 ];
             });
+        
+        $payroll = Payroll::all();
 
         return inertia("Payroll", [
-            "availableDates" => $availableDates
+            "availableDates" => $availableDates,
+            "payroll" => $payroll
         ]);
     }
 
