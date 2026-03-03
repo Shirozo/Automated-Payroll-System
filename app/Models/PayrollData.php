@@ -29,4 +29,12 @@ class PayrollData extends Model
         "essu_union",
         "cfi",
     ];
+
+    public function payroll() {
+        return $this->belongsTo(Payroll::class);
+    }
+
+    public function employee() {
+        return $this->belongsTo(Employee::class);
+    }
 }
