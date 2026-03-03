@@ -58,7 +58,7 @@ export default function EditUserForm({ closeModal, positions, user_data }) {
         const ip = deviceSelected.ip
 
         try {
-            const response = await fetch(`http://${ip}/scan?name=${addData.name}&employee_id=${addData.employee_number}`, {
+            const response = await fetch(`http://${ip}/scan?name=${addData.name}&employee_id=${addData.employee_number}&fingerprint_id=${addData.fingerprint_id}`, {
                 method: "GET",
             })
 
