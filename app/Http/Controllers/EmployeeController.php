@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateEmployeeRequest;
 use App\Models\Employee;
 use App\Models\Position;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -79,5 +80,26 @@ class EmployeeController extends Controller
     public function destroy(Employee $employee)
     {
         //
+    }
+
+    public function updateDevice(Request $request, Employee $employee) {
+        $request->validate([
+            "mac" => "required|mac_address",
+            "fingerprint_id" => "required|integer"
+        ]);
+        if ($request->has("mac") && $request->has("fingerprint_id")) {
+            $employee->update([
+                "device" => $request->mac,
+                "fingerprint_id" => $request->fingerprint_id
+            ]);
+            
+            return response()->json([
+                "message" => "Employee Device Registered!"
+            ], 200);
+        } else {
+            return response()->json([
+                "message" => "Invalid parameters!"
+            ], 403);
+        }
     }
 }
