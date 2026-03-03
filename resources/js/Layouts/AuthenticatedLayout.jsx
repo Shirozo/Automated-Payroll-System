@@ -32,6 +32,20 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Dashboard
                                 </NavLink>
+                                
+                                <NavLink
+                                    href={route('attendance.show')}
+                                    active={route().current('attendance.show')}
+                                >
+                                    Attendance
+                                </NavLink>
+
+                                <NavLink
+                                    href={route('payroll.show')}
+                                    active={route().current('payroll.show')}
+                                >
+                                    Payroll
+                                </NavLink>
 
                                 {user.type == 1 && (
                                     <>
@@ -57,21 +71,6 @@ export default function AuthenticatedLayout({ header, children }) {
                                         </NavLink>
                                     </>
                                 )}
-
-                                <NavLink
-                                    href={route('attendance.show')}
-                                    active={route().current('attendance.show')}
-                                >
-                                    Attendance
-                                </NavLink>
-
-
-                                <NavLink
-                                    href={route('profile.edit')}
-                                    active={route().current('profile.edit')}
-                                >
-                                    Profile
-                                </NavLink>
                             </div>
                         </div>
 
