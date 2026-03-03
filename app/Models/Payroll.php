@@ -13,6 +13,7 @@ class Payroll extends Model
     protected $fillable = [
         "name",
         "amount",
+        "deduction",
         "employee_count",
         "viewable",
     ];
