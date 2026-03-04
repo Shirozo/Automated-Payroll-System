@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Attendance;
+use App\Models\AttendanceLog;
 use App\Models\Device;
 use App\Models\Employee;
 use App\Models\Payroll;
@@ -106,6 +107,8 @@ class ThreeMonthsSeeder extends Seeder
 
         $currentDate = $startDate->copy();
 
+        $actions = ["am_login", "am_logout", "pm_login", "pm_logout"];
+
         while ($currentDate->lte($endDate)) {
             if ($currentDate->isWeekend()) {
                 $currentDate->addDay();
@@ -115,15 +118,18 @@ class ThreeMonthsSeeder extends Seeder
             foreach ($employees as $employee) {
                 // Randomly skip some days (absent)
                 if (rand(1, 100) <= 5) {
-                    continue; 
+                    Attendance::create([
+                        'employee_id' => $employee->id,
+                        'device_id' => $deviceIds[array_rand($deviceIds)],
+                        'tag' => "absent",
+                        'date' => $currentDate->format('Y-m-d'),
+                    ]);
+                    continue;
                 }
 
                 // AM Use random times
                 // AM Login: 7:30 - 8:30
                 $amLogin = $currentDate->copy()->setTime(7, 30)->addMinutes(rand(0, 60));
-                // Tag: Late if after 8:00 (example logic, adjust as needed)
-                $tag = $amLogin->format('H:i') > '08:00' ? 'late' : 'present';
-
                 $amLogout = $currentDate->copy()->setTime(12, 0)->addMinutes(rand(0, 30));
                 $pmLogin = $currentDate->copy()->setTime(13, 0)->addMinutes(rand(0, 30));
                 $pmLogout = $currentDate->copy()->setTime(17, 0)->addMinutes(rand(0, 60));
@@ -131,13 +137,35 @@ class ThreeMonthsSeeder extends Seeder
                 Attendance::create([
                     'employee_id' => $employee->id,
                     'device_id' => $deviceIds[array_rand($deviceIds)],
-                    'tag' => $tag,
+                    'tag' => "present",
                     'date' => $currentDate->format('Y-m-d'),
                     'am_login' => $amLogin->format('H:i:s'),
                     'am_logout' => $amLogout->format('H:i:s'),
                     'pm_login' => $pmLogin->format('H:i:s'),
                     'pm_logout' => $pmLogout->format('H:i:s'),
                 ]);
+
+                $logs = [];
+                $timestamp = now();
+
+                foreach ([
+                    'am_login' => $amLogin,
+                    'am_logout' => $amLogout,
+                    'pm_login' => $pmLogin,
+                    'pm_logout' => $pmLogout,
+                ] as $action => $time) {
+                    $logs[] = [
+                        'employee_id' => $employee->id,
+                        'device_id' => $deviceIds[array_rand($deviceIds)],
+                        'date' => $currentDate->format('Y-m-d'),
+                        'action' => $action,
+                        'time' => $time->format('H:i:s'),
+                        'created_at' => $timestamp,
+                        'updated_at' => $timestamp,
+                    ];
+                }
+
+                AttendanceLog::insert($logs);
             }
 
             $currentDate->addDay();
