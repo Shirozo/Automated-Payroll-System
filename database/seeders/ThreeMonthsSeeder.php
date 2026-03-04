@@ -37,17 +37,29 @@ class ThreeMonthsSeeder extends Seeder
         $allPositions = Position::all();
 
         // 2. Create Devices
-        $devices = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $devices[] = Device::create([
-                'name' => 'Biometric Device ' . $i,
-                'mac' => Str::upper(Str::random(12)),
-                'ip' => '192.168.1.' . (100 + $i),
-                'status' => 'online',
-                'last_seen' => now(),
-            ]);
+        $macAddresses = [
+            '00:1A:2B:3C:4D:5E',
+            'A1:B4:C5:C1:67:AB',
+            '08:00:07:A9:B2:EB',
+            '74:78:27:11:22:33',
+            '74:78:27:11:22:32',
+        ];
+
+        $deviceIds = [];
+        $deviceMacs = [];
+        foreach ($macAddresses as $index => $mac) {
+            $device = Device::firstOrCreate(
+                ['mac' => $mac],
+                [
+                    'name' => 'Biometric Device ' . ($index + 1),
+                    'ip' => '192.168.1.' . (100 + $index + 1),
+                    'status' => 'online',
+                    'last_seen' => now(),
+                ]
+            );
+            $deviceIds[] = $device->id;
+            $deviceMacs[] = $device->mac;
         }
-        $deviceIds = collect($devices)->pluck('id')->toArray();
 
         // 3. Create Users/Employees
         $usersData = [
@@ -67,6 +79,16 @@ class ThreeMonthsSeeder extends Seeder
             ];
         }
 
+        // Pre-assign device to each user to be consistent
+        $userDeviceMap = [];
+        foreach ($usersData as $index => $userData) {
+            $randomIndex = array_rand($deviceIds);
+            $userDeviceMap[$userData['username']] = [
+                'id' => $deviceIds[$randomIndex],
+                'mac' => $deviceMacs[$randomIndex]
+            ];
+        }
+
         $employees = [];
 
         foreach ($usersData as $userData) {
@@ -82,6 +104,8 @@ class ThreeMonthsSeeder extends Seeder
             // Create Employee record if not exists
             $employee = Employee::where('user_id', $user->id)->first();
             if (!$employee) {
+                $assignedDevice = $userDeviceMap[$userData['username']];
+                
                 $employee = Employee::create([
                     'user_id' => $user->id,
                     'position_id' => $allPositions->random()->id,
@@ -93,11 +117,24 @@ class ThreeMonthsSeeder extends Seeder
                     'deduction_withholding_tax' => rand(500, 1500),
                     'deduction_igp_cottage' => rand(50, 200),
                     'deduction_cfi' => rand(50, 200),
-                    'device' => 'Device-' . Str::random(3),
+                    'device' => $assignedDevice['mac'], // Use the MAC address of the assigned device
                     'fingerprint_id' => rand(1000, 9999),
                 ]);
             }
             $employees[] = $employee;
+        }
+
+        // Create mapping for attendance generation
+        $employeeDeviceMap = [];
+        foreach ($employees as $emp) {
+            // Find the device ID based on the employee's assigned device MAC
+            $device = Device::where('mac', $emp->device)->first();
+            if ($device) {
+                $employeeDeviceMap[$emp->id] = $device->id;
+            } else {
+                // Fallback (shouldn't happen with correct logic above)
+                $employeeDeviceMap[$emp->id] = $deviceIds[0];
+            }
         }
 
         // 4. Generate Attendance for last 3 months
@@ -116,11 +153,13 @@ class ThreeMonthsSeeder extends Seeder
             }
 
             foreach ($employees as $employee) {
+                $deviceId = $employeeDeviceMap[$employee->id];
+
                 // Randomly skip some days (absent)
                 if (rand(1, 100) <= 5) {
                     Attendance::create([
                         'employee_id' => $employee->id,
-                        'device_id' => $deviceIds[array_rand($deviceIds)],
+                        'device_id' => $deviceId,
                         'tag' => "absent",
                         'date' => $currentDate->format('Y-m-d'),
                     ]);
@@ -136,7 +175,7 @@ class ThreeMonthsSeeder extends Seeder
 
                 Attendance::create([
                     'employee_id' => $employee->id,
-                    'device_id' => $deviceIds[array_rand($deviceIds)],
+                    'device_id' => $deviceId,
                     'tag' => "present",
                     'date' => $currentDate->format('Y-m-d'),
                     'am_login' => $amLogin->format('H:i:s'),
@@ -156,7 +195,7 @@ class ThreeMonthsSeeder extends Seeder
                 ] as $action => $time) {
                     $logs[] = [
                         'employee_id' => $employee->id,
-                        'device_id' => $deviceIds[array_rand($deviceIds)],
+                        'device_id' => $deviceId,
                         'date' => $currentDate->format('Y-m-d'),
                         'action' => $action,
                         'time' => $time->format('H:i:s'),
