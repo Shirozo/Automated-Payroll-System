@@ -124,43 +124,19 @@ class ThreeMonthsSeeder extends Seeder
                 // Tag: Late if after 8:00 (example logic, adjust as needed)
                 $tag = $amLogin->format('H:i') > '08:00' ? 'late' : 'present';
 
+                $amLogout = $currentDate->copy()->setTime(12, 0)->addMinutes(rand(0, 30));
+                $pmLogin = $currentDate->copy()->setTime(13, 0)->addMinutes(rand(0, 30));
+                $pmLogout = $currentDate->copy()->setTime(17, 0)->addMinutes(rand(0, 60));
+
                 Attendance::create([
                     'employee_id' => $employee->id,
                     'device_id' => $deviceIds[array_rand($deviceIds)],
-                    'action' => 'am_login',
                     'tag' => $tag,
                     'date' => $currentDate->format('Y-m-d'),
-                    'time' => $amLogin->format('H:i:s'),
-                ]);
-
-                // AM Logout: 12:00 - 12:30
-                Attendance::create([
-                    'employee_id' => $employee->id,
-                    'device_id' => $deviceIds[array_rand($deviceIds)],
-                    'action' => 'am_logout',
-                    'tag' => 'present',
-                    'date' => $currentDate->format('Y-m-d'),
-                    'time' => $currentDate->copy()->setTime(12, 0)->addMinutes(rand(0, 30))->format('H:i:s'),
-                ]);
-
-                // PM Login: 13:00 - 13:30
-                Attendance::create([
-                    'employee_id' => $employee->id,
-                    'device_id' => $deviceIds[array_rand($deviceIds)],
-                    'action' => 'pm_login',
-                    'tag' => 'present',
-                    'date' => $currentDate->format('Y-m-d'),
-                    'time' => $currentDate->copy()->setTime(13, 0)->addMinutes(rand(0, 30))->format('H:i:s'),
-                ]);
-
-                 // PM Logout: 17:00 - 18:00
-                Attendance::create([
-                    'employee_id' => $employee->id,
-                    'device_id' => $deviceIds[array_rand($deviceIds)],
-                    'action' => 'pm_logout',
-                    'tag' => 'present',
-                    'date' => $currentDate->format('Y-m-d'),
-                    'time' => $currentDate->copy()->setTime(17, 0)->addMinutes(rand(0, 60))->format('H:i:s'),
+                    'am_login' => $amLogin->format('H:i:s'),
+                    'am_logout' => $amLogout->format('H:i:s'),
+                    'pm_login' => $pmLogin->format('H:i:s'),
+                    'pm_logout' => $pmLogout->format('H:i:s'),
                 ]);
             }
 
