@@ -244,7 +244,7 @@ class PayrollService
         $this->fpdf = $fpdf;
     }
 
-    public function generatePayrollPdf(array $data)
+    public function generatePayrollPdf($data)
     {
         // Use custom PayrollPdf class instead of injected Fpdf
         $pdf = new PayrollPdf('L', 'mm', 'Legal');
