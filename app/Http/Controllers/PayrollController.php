@@ -18,10 +18,10 @@ class PayrollController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function view(Request $request, PayrollService $payrollService)
+    public function view(Request $request, Payroll $payroll, PayrollService $payrollService)
     {
         //
-        return $payrollService->generatePayrollPdf([]);
+        return $payrollService->generatePayrollPdf($payroll);
     }
 
     /**
