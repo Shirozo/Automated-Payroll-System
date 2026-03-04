@@ -17,7 +17,6 @@ class Attendance extends Model
         "date",
         "tag",
         "am_login",
-        "am_logout",
         "pm_login",
         "pm_logout"
     ];
