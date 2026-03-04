@@ -25,7 +25,10 @@ class StoreAttendanceRequest extends FormRequest
             "device_mac" => "required|mac_address",
             "fingerprint_id" => "required|integer",
             "action" => "required|in:login,logout",
-            "time" => "required|string",
+            "am_login" => "nullable|date_format:H:i:s",
+            "am_logout" => "nullable|date_format:H:i:s",
+            "pm_login" => "nullable|date_format:H:i:s",
+            "pm_logout" => "nullable|date_format:H:i:s",
         ];
     }
 }
