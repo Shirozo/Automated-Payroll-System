@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAttendanceRequest;
 use App\Http\Requests\UpdateAttendanceRequest;
+use App\Http\Resources\AttendanceLogResource;
 use App\Http\Resources\AttendanceResource;
 use App\Models\Attendance;
+use App\Models\AttendanceLog;
 use App\Models\Configuration;
 use App\Models\Device;
 use App\Models\Employee;
@@ -156,8 +158,8 @@ class AttendanceController extends Controller
     public function show(Request $request)
     {
         if (Auth::user()->type == 1) {
-            $attendance = AttendanceResource::collection(
-                Attendance::with(['employee.user', 'device'])->get()
+            $attendance = AttendanceLogResource::collection(
+                AttendanceLog::with(['employee.user', 'device'])->get()
             );
 
             $employees = Employee::with('user')->get()->map(function ($employee) {
@@ -169,8 +171,8 @@ class AttendanceController extends Controller
         } else {
             $employee = Employee::where("user_id", Auth::user()->id)->first();
             $employees = [];
-            $attendance = AttendanceResource::collection(
-                Attendance::with(['employee.user', 'device'])->where("employee_id", "=", $employee->id)->get()
+            $attendance = AttendanceLogResource::collection(
+                AttendanceLog::with(['employee.user', 'device'])->where("employee_id", "=", $employee->id)->get()
             );
         }
         return inertia("AttendanceLog", [
