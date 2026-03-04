@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAttendanceRequest;
 use App\Http\Requests\UpdateAttendanceRequest;
 use App\Http\Resources\AttendanceLogResource;
-use App\Http\Resources\AttendanceResource;
 use App\Models\Attendance;
 use App\Models\AttendanceLog;
+use App\Models\AttendanceTemp;
 use App\Models\Configuration;
 use App\Models\Device;
 use App\Models\Employee;
@@ -16,6 +16,9 @@ use App\Services\PdfGeneratorService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+use function Symfony\Component\Clock\now;
 
 class AttendanceController extends Controller
 {
@@ -62,8 +65,7 @@ class AttendanceController extends Controller
             $afternoonOut = Configuration::where("name", "afternoon_logout")->first();
 
             $currentTime = Carbon::createFromFormat('H:i:s', $request->time)->format('H:i:s');
-
-            $user_attendance = Attendance::where([
+            $user_attendance = AttendanceLog::where([
                 ["employee_id", $employee->id],
                 ["date", "=", now()->format('Y-m-d')]
             ])->get();
@@ -75,11 +77,11 @@ class AttendanceController extends Controller
                     if ($user_attendance->where('action', 'am_login')->isNotEmpty()) {
                         $message = "Already logged in for the morning!";
                     } else {
-                        if ($currentTime <= $morningInWithGrace) {
-                            $tag = "present";
-                        } else {
-                            $tag = "late";
-                        }
+                        // if ($currentTime <= $morningInWithGrace) {
+                        //     $tag = "present";
+                        // } else {
+                        //     $tag = "late";
+                        // }
                         $action = "am_login";
                         $message = "Morning Logged In!";
                         $create = true;
@@ -88,11 +90,11 @@ class AttendanceController extends Controller
                     if ($user_attendance->where('action', 'pm_login')->isNotEmpty()) {
                         $message = "Already logged in for the afternoon!";
                     } else {
-                        if ($currentTime <= $afternoonInWithGrace) {
-                            $tag = "present";
-                        } else {
-                            $tag = "late";
-                        }
+                        // if ($currentTime <= $afternoonInWithGrace) {
+                        //     $tag = "present";
+                        // } else {
+                        //     $tag = "late";
+                        // }
                         $action = "pm_login";
                         $message = "Afternoon Logged In!";
                         $create = true;
@@ -122,7 +124,7 @@ class AttendanceController extends Controller
                         $create = true;
                     }
                 } else {
-                    $message = "Not in the log in timeframe!";
+                    $message = "Not in the log out timeframe!";
                 }
             } else {
                 $message = "Invalid Action!";
@@ -131,15 +133,39 @@ class AttendanceController extends Controller
 
 
             if ($create) {
-                Attendance::create([
+                DB::beginTransaction();
+
+                $has_attendance = Attendance::where([
+                    ["employee_id", $employee->id],
+                    ["date", "=", now()->format('Y-m-d')]
+                ])->first();
+
+                if ($has_attendance) {
+                    $has_attendance->update([
+                        $action => $request->time
+                    ]);
+                } else {
+                    $attendance_ = Attendance::create([
+                        "employee_id" => $employee->id,
+                        "device_id" => $device->id,
+                        "date" => now()->format('Y-m-d'),
+                        $action => $request->time
+                    ]);
+
+                    AttendanceTemp::create([
+                        "attendance_id" => $attendance_->id
+                    ]);
+                }
+
+                AttendanceLog::create([
                     "employee_id" => $employee->id,
                     "device_id" => $device->id,
                     "action" => $action,
-                    "tag" => $tag ? $tag : null,
-                    "date" => now()->format('Y-m-d'),
+                    "date" => now()->format("Y-m-d"),
                     "time" => $request->time
                 ]);
 
+                DB::commit();
                 return response()->json([
                     "message" => $message
                 ], 200);
