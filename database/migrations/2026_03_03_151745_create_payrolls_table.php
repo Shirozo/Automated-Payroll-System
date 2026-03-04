@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('payrolls', function (Blueprint $table) {
             $table->id();
             $table->string("name");
-            $table->float("amount")->nullable();
             $table->string("month");
             $table->string("year");
             $table->integer("employee_count")->nullable();
