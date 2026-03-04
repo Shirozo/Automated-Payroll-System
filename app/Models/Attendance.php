@@ -16,7 +16,10 @@ class Attendance extends Model
         "action",
         "date",
         "tag",
-        "time"
+        "am_login",
+        "am_logout",
+        "pm_login",
+        "pm_logout"
     ];
 
     public function employee() {
