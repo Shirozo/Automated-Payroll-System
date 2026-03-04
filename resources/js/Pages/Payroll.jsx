@@ -266,6 +266,7 @@ export default function Payroll({ flash }) {
                                 value={data.deduction}
                                 onChange={(e) => setData({ ...data, deduction: e.target.value })}
                                 className='mt-1 block w-full focus:border-green-300 outline-green-300 rounded-md border-gray-300 shadow-sm'>
+                                <option value="">Deduction</option>
                                 <option value="retiree">Retiree Financial Assistant</option>
                                 <option value="death_aid">Death Aid</option>
                                 <option value="healthcare">Healthcare</option>
