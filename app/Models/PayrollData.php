@@ -10,6 +10,8 @@ class PayrollData extends Model
     protected $fillable = [
         "payroll_id",
         "employee_id",
+        "days_present",
+        "days_absent",
         "rate",
         "pera",
         "period_earned",
@@ -24,8 +26,8 @@ class PayrollData extends Model
         "absence_wo_pay",
         "withholding_tax",
         "cottage_rental",
-        "essu_fa",
-        "retiree_asst",
+        "essu_ffa",
+        "custom_deduction",
         "essu_union",
         "cfi",
     ];
