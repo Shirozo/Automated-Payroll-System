@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Codedge\Fpdf\Fpdf\Fpdf;
-use Carbon\Carbon;
 
 class PayrollPdf extends Fpdf
 {
