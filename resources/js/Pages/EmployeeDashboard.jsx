@@ -16,7 +16,7 @@ export default function EmployeeDashboard() {
     const [hoveredDate, setHoveredDate] = useState(null)
 
     const [dateSelected, setDateSelected] = useState({
-        "month": new Date().getMonth(),
+        "month": new Date().getMonth() - 1,
         "year": new Date().getFullYear()
     })
 
@@ -175,7 +175,7 @@ export default function EmployeeDashboard() {
                                                 {Array.from({ length: totalCells }).map((_, index) => {
                                                     const dayNum = index - firstDay + 1
                                                     const isValid = index >= firstDay && index < firstDay + getDaysInMonth_val
-                                                    const attendanceRecord = isValid ? attendances.find((d) => d.date == dayNum) : null
+                                                    const attendanceRecord = isValid ? attendances.find((d) => parseInt(d.date.split('-')[2]) === dayNum) : null
 
                                                     return (
                                                         <div
@@ -184,33 +184,28 @@ export default function EmployeeDashboard() {
                                                             onMouseEnter={() => isValid && setHoveredDate(dayNum)}
                                                             onMouseLeave={() => setHoveredDate(null)}>
 
-                                                            {isValid ? (
-                                                                <div className={`w-full h-full flex items-center justify-center rounded-lg font-semibold text-sm cursor-pointer transition-all ${attendanceRecord ? getStatusColor(attendanceRecord.status) : "bg-gray-50 text-gray-400"} ${hoveredDate === dayNum ? "ring-2 ring-blue-500 shadow-md" : ""}`}
-                                                                >
-                                                                    {dayNum}
+                                                            <div className={`w-full h-full flex items-center justify-center rounded-lg font-semibold text-sm cursor-pointer transition-all ${attendanceRecord ? getStatusColor(attendanceRecord.tag) : "bg-gray-50 text-gray-400"} ${hoveredDate === dayNum ? "ring-2 ring-blue-500 shadow-md" : ""}`}
+                                                            >
+                                                                {isValid ? dayNum : ""}
 
-                                                                    {hoveredDate === dayNum && attendanceRecord && attendanceRecord.status == "present" && (
-                                                                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded-lg p-2 whitespace-nowrap z-50">
-                                                                            {attendanceRecord.scanned[0].am_in && (
-                                                                                <div>AM In: {attendanceRecord.scanned[0].am_in}</div>
-                                                                            )}
-                                                                            {attendanceRecord.scanned[0].am_out && (
-                                                                                <div>AM Out: {attendanceRecord.scanned[0].am_out}</div>
-                                                                            )}
-                                                                            {attendanceRecord.scanned[0].pm_in && (
-                                                                                <div>PM In: {attendanceRecord.scanned[0].pm_in}</div>
-                                                                            )}
-                                                                            {attendanceRecord.scanned[0].pm_out && (
-                                                                                <div>PM Out: {attendanceRecord.scanned[0].pm_out}</div>
-                                                                            )}
-                                                                        </div>
-                                                                    )}
+                                                                {hoveredDate === dayNum && attendanceRecord && attendanceRecord.tag == "present" && (
+                                                                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded-lg p-2 whitespace-nowrap z-50">
+                                                                        {attendanceRecord.am_login && (
+                                                                            <div>AM In: {attendanceRecord.am_login}</div>
+                                                                        )}
+                                                                        {attendanceRecord.am_logout && (
+                                                                            <div>AM Out: {attendanceRecord.am_logout}</div>
+                                                                        )}
+                                                                        {attendanceRecord.pm_login && (
+                                                                            <div>PM In: {attendanceRecord.pm_login}</div>
+                                                                        )}
+                                                                        {attendanceRecord.pm_logout && (
+                                                                            <div>PM Out: {attendanceRecord.pm_logout}</div>
+                                                                        )}
+                                                                    </div>
+                                                                )}
 
-                                                                </div>
-
-                                                            ) : (
-                                                                <div className="w-full h-full bg-white"></div>
-                                                            )}
+                                                            </div>
 
                                                         </div>
                                                     )
