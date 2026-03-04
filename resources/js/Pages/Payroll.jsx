@@ -5,21 +5,19 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { Edit, Search, Trash2, UploadCloud, X } from 'lucide-react';
+import { Edit, Eye, EyeClosed, EyeOff, Paperclip, Power, PowerOff, Printer, Search, Trash2, UploadCloud, View, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import { toast, ToastContainer } from 'react-toastify';
 import axios from 'axios';
+import DangerButton from '@/Components/DangerButton';
 
 
 export default function Payroll({ flash }) {
 
     // const { initAttendance, auth, employee } = usePage().props
     const { auth, availableDates, payroll } = usePage().props
-    const initAttendance = []
-    const employee = []
 
-    const [attendance, setAttendance] = useState(initAttendance.data)
     const [searchTerm, setSearchTerm] = useState("")
     const [isFormOpen, setIsFormOpen] = useState(false)
 
@@ -66,6 +64,18 @@ export default function Payroll({ flash }) {
         }
     }, [payroll, searchTerm])
 
+    const handleView = (id) => {
+        window.open(route('payroll.view', {payroll : id}));
+    }
+
+    const handleVisible = (id) => {
+
+    }
+
+    const handleDelete = (id) => {
+
+    }
+
     useEffect(() => {
         if (flash.message.success) {
             toast.success(flash.message.success)
@@ -82,32 +92,34 @@ export default function Payroll({ flash }) {
             selector: row => row.name,
             sortable: true,
             cell: row => <div className="font-medium text-foreground">{row.name}</div>,
-            width: "20%"
+            width: "80%"
         },
-        // {
-        //     name: 'Date',
-        //     selector: row => row.date,
-        //     sortable: true,
-        //     cell: row => <div className="text-muted-foreground">{row.date}</div>,
-        //     width: "15%"
-        // },
-        // {
-        //     name: 'Time',
-        //     selector: row => row.time,
-        //     sortable: true,
-        //     cell: row => {
-        //         const time = new Date(`1970-01-01T${row.time}`);
-        //         return <div className="font-medium text-foreground">{time.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}</div>;
-        //     },
-        //     width: "20%"
-        // },
-        // {
-        //     name: 'Device',
-        //     selector: row => row.device.name,
-        //     sortable: true,
-        //     cell: row => <div className="text-muted-foreground">{row.device.name}</div>,
-        //     width: "15%"
-        // },
+        {
+            name: 'Actions',
+            cell: row => (
+                <div className="flex gap-2">
+                    <PrimaryButton
+                        onClick={() => handleView(row.id)}
+                        className="rounded-lg p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                        <Printer className="h-4 w-4" />
+                    </PrimaryButton>
+                    <SecondaryButton
+                        onClick={() => handleVisible(row.id)}
+                        className="rounded-lg p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                        <EyeOff className="h-4 w-4" />
+                    </SecondaryButton>
+                    <DangerButton
+                        onClick={() => handleDelete(row.id)}
+                        className="rounded-lg p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </DangerButton>
+                </div>
+            ),
+            ignoreRowClick: true,
+        },
     ]
 
     const customStyles = {
