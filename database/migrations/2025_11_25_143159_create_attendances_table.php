@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId("employee_id")->constrained("employees")->onDelete("cascade")->onUpdate("cascade");
             $table->foreignId("device_id")->nullable()->constrained("devices")->onDelete("set null")->onUpdate("cascade");
-            $table->enum("tag", ['present', 'late', 'absent'])->nullable();
+            $table->enum("tag", ['present', 'absent'])->nullable();
             $table->date("date");
             $table->time("am_login")->nullable();
             $table->time("am_logout")->nullable();
