@@ -395,8 +395,8 @@ class PayrollService
 
         $pdf->Ln(5);
 
-        // Check if there is enough space for the certification block (~70mm)
-        if ($pdf->GetY() + 70 > $pdf->GetPageHeight() - 10) {
+        // Check if there is enough space for the certification block (~55mm)
+        if ($pdf->GetY() + 55 > $pdf->GetPageHeight() - 10) {
             $pdf->renderTableHeader = false;
             $pdf->AddPage();
         }
@@ -411,10 +411,10 @@ class PayrollService
 
         // Block A & C Headers
         $pdf->Cell(10, 5, 'A', 1, 0, 'C');
-        $pdf->Cell($halfW - 10, 5, 'CERTIFIED: Services duly rendered as stated.', 'TBR', 0, 'L');
+        $pdf->Cell($halfW - 10, 5, 'CERTIFIED: Services duly rendered as stated:', "T", 0, 'L');
 
         $pdf->Cell(10, 5, 'C', 1, 0, 'C');
-        $pdf->Cell($halfW - 10, 5, 'Approved for Payment:', 'TBR', 1, 'L');
+        $pdf->Cell($halfW - 10, 5, 'Approved for Payment:________', 'TR', 1, 'L');
 
         // Names Space
         // Use SetX to align properly if Cell flow is tricky
@@ -422,40 +422,81 @@ class PayrollService
         $pdf->SetXY($pdf->GetX(), $currY);
 
         // Left Box Body (A)
-        $pdf->Cell($halfW, 18, '', 'LR', 0);
+        $pdf->Cell($halfW, 5, '', 'LR', 0);
         // Right Box Body (C)
-        $pdf->Cell($halfW, 18, '', 'LR', 1);
+        $pdf->Cell($halfW, 5, '', 'LR', 1);
 
         // Names
-        $pdf->SetFont('Arial', 'B', 8);
-        $pdf->Cell($halfW, 5, 'DR. VICENTE A. AGDA, JR', 'LR', 0, 'C');
-        $pdf->Cell($halfW, 5, 'DR. ANDRES C. PAGATPATAN, JR.', 'LR', 1, 'C');
+        $pdf->SetFont('', 'BU');
+        $pdf->Cell(20, 5, '', 'L', 0, 'L');
+        $pdf->Cell(30, 5, 'DR. VICENTE A. AGDA, JR', 0, 0, 'L');
+        $pdf->Cell(20, 5, '', '', 0, 'L');
+        $pdf->Cell(10, 5, '_______', '', 0, 'L');
+        $pdf->Cell($halfW - 80, 5, '', 0, 0, 'L');
+        $pdf->Cell(20, 5, '', "L", 0, 'L');
+        $pdf->Cell(30, 5, 'DR. ANDRES C. PAGATPATAN, JR.', 0, 0, 'L');
+        $pdf->Cell(20, 5, '', '', 0, 'L');
+        $pdf->Cell(10, 5, '_______', '', 0, 'L');
+        $pdf->Cell($halfW - 80, 5, '', "R", 1, 'L');
 
         // Positions
         $pdf->SetFont('Arial', '', 8);
-        $pdf->Cell($halfW, 5, 'Vice President for Academic Affairs', 'LRB', 0, 'C');
-        $pdf->Cell($halfW, 5, 'SUC President III', 'LRB', 1, 'C');
+        $pdf->Cell(15, 5, '', 'L', 0, 'L');
+        $pdf->Cell(50, 5, 'Vice President for Academic Affairs', 'B', 0, 'C');
+        $pdf->Cell(25, 5, 'Date', 'B', 0, 'C');
+        $pdf->Cell($halfW - 90, 5, '', 0, 0, 'L');
+        $pdf->Cell(15, 5, '', 'L', 0, 'L');
+        $pdf->Cell(50, 5, 'SUC President III', 'B', 0, 'C');
+        $pdf->Cell(25, 5, 'Date', 'B', 0, 'C');
+        $pdf->Cell($halfW - 90, 5, '', "R", 1, 'R');
 
         // Block B & D Headers
+        $pdf->SetFont('Arial', '', 6);
         $pdf->Cell(10, 5, 'B', 1, 0, 'C');
-        $pdf->Cell($halfW - 10, 5, 'CERTIFIED: Supporting documents complete...', 'TBR', 0, 'L');
+        $pdf->Cell($halfW - 10, 5, 'CERTIFIED: Supporting documents complete and proper, and cash available in the amount of P____________', 'TR', 0, 'L');
 
         $pdf->Cell(10, 5, 'D', 1, 0, 'C');
-        $pdf->Cell($halfW - 10, 5, 'CERTIFIED: Each employee whose name appears...', 'TBR', 1, 'L');
+        $pdf->Cell($halfW - 45, 5, "CERTIFIED: Each employee whose name appears on the payroll has been paid the amount as indicated opposite his/her name", 'TR', 0, 'L');
+        $pdf->Cell(5, 5, 'E', 1, 0, 'L');
+        $pdf->Cell(30, 5, '', "TR", 1, 'L');
 
         // Signatures Space
-        $pdf->Cell($halfW, 18, '', 'LR', 0);
-        $pdf->Cell($halfW, 18, '', 'LR', 1);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell($halfW, 5, '', 'LR', 0);
+        $pdf->Cell($halfW - 35, 5, '', 'LR', 0);
+        $pdf->Cell(15, 5, 'ORS/BURS', 0, 0, 'L');
+        $pdf->Cell(20, 5, '____________', 'R', 1, 'R');
+
+        $pdf->Cell($halfW, 5, '', 'LR', 0);
+        $pdf->Cell($halfW - 35, 5, '', 'LR', 0);
+        $pdf->Cell(15, 5, 'Date:', 0, 0, 'L');
+        $pdf->Cell(20, 5, '___________', 'R', 1, 'L');
+
+
 
         // Names
-        $pdf->SetFont('Arial', 'B', 8);
-        $pdf->Cell($halfW, 5, 'BRENDA M. DAGANDAN, CPA', 'LR', 0, 'C');
-        $pdf->Cell($halfW, 5, 'CHARLES VINCENT D. LIM', 'LR', 1, 'C');
+        $pdf->SetFont('Arial', 'UB', 8);
+        $pdf->Cell(15, 5, '', 'L', 0, 'L');
+        $pdf->Cell(50, 5, 'BRENDA M. DAGANDAN, CPA', '', 0, 'L');
+        $pdf->Cell($halfW - 65, 5, '_______', 'R', 0, 'L');
+        $pdf->Cell(15, 5, '', 'L', 0, 'L');
+        $pdf->Cell(50, 5, 'CHARLES VINCENT D. LIM', '', 0, 'L');
+        $pdf->Cell($halfW - 100, 5, '_______', 'R', 0, 'L');
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(15, 5, 'JEV No.:', '', 0, 'L');
+        $pdf->Cell(20, 5, '___________', 'R', 1, 'L');
+
 
         // Positions
         $pdf->SetFont('Arial', '', 8);
-        $pdf->Cell($halfW, 5, 'SAO (Accountant IV)', 'LRB', 0, 'C');
-        $pdf->Cell($halfW, 5, 'Administrative Officer V', 'LRB', 1, 'C');
+        $pdf->Cell(15, 5, '', 'LB', 0, 'L');
+        $pdf->Cell(50, 5, 'SAO (Accountant IV)', 'B', 0, 'L');
+        $pdf->Cell($halfW - 65, 5, 'Date', 'RB', 0, 'L');
+        $pdf->Cell(15, 5, '', 'LB', 0, 'L');
+        $pdf->Cell(50, 5, 'Administrative Officer V', 'B', 0, 'L');
+        $pdf->Cell($halfW - 100, 5, 'Date', 'RB', 0, 'L');
+        $pdf->Cell(15, 5, 'Date:', 'B', 0,'L');
+        $pdf->Cell(20, 5, '___________', 'RB', 1, 'L');
 
 
         $pdf->Output('I', 'GeneralPayroll.pdf');
