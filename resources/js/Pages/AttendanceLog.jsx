@@ -171,15 +171,15 @@ export default function AttendanceLog({ flash }) {
 
     const sortedAttendance = useMemo(() => {
         const sorted = [...filteredAttendance]
-        if (sortBy === "name") {
-            sorted.sort((a, b) => a.user.name.localeCompare(b.user.name))
-        }
-        // else if (sortBy === "department") {
-        //     sorted.sort((a, b) => a.department.localeCompare(b.department))
-        // } 
-        else if (sortBy === "salary") {
-            sorted.sort((a, b) => b.position.salary - a.position.salary)
-        }
+        sorted.sort((a, b) => {
+            const dateCompare = b.date.localeCompare(a.date)
+            if (dateCompare !== 0) return dateCompare
+
+            const timeCompare = b.time.localeCompare(a.time)
+            if (timeCompare !== 0) return timeCompare
+
+            return a.user.name.localeCompare(b.user.name)
+        })
         return sorted
     }, [filteredAttendance, sortBy])
 
