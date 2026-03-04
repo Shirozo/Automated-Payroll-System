@@ -45,8 +45,6 @@ class DeviceController extends Controller
         //     ->get();
         $devices = Device::where('last_seen', '>=', $onlineThreshold)->get();
         
-        dd($devices);
-
         return response()->json([
             'success' => true,
             'devices' => $devices,
