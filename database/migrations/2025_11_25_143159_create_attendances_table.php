@@ -15,10 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId("employee_id")->constrained("employees")->onDelete("cascade")->onUpdate("cascade");
             $table->foreignId("device_id")->nullable()->constrained("devices")->onDelete("set null")->onUpdate("cascade");
-            $table->enum("action", ['am_login', 'am_logout', 'pm_login', 'pm_logout']);
-            $table->enum("tag", ['present', 'late'])->nullable();
+            $table->enum("tag", ['present', 'late', 'absent'])->nullable();
             $table->date("date");
-            $table->time("time");
+            $table->time("am_login")->nullable();
+            $table->time("am_logout")->nullable();
+            $table->time("pm_login")->nullable();
+            $table->time("pm_logout")->nullable();
             $table->timestamps();
         });
     }
