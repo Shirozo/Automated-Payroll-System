@@ -14,4 +14,12 @@ class AttendanceLog extends Model
         "date",
         "time"
     ];
+
+    public function employee() {
+        return $this->belongsTo(Employee::class);
+    }
+
+    public function device() {
+        return $this->belongsTo(Device::class);
+    }
 }
