@@ -107,7 +107,7 @@ class AttendanceController extends Controller
                     if ($user_attendance->where('action', 'pm_logout')->isNotEmpty()) {
                         $message = "Already logged out for the afternoon!";
                     } else if ($user_attendance->where('action', 'pm_login')->isEmpty()) {
-                        $message = "No afternoon login!";
+                        $message = "No afternoon logout!";
                     } else {
                         $action = "pm_logout";
                         $message = "Afternoon Logged Out!";
