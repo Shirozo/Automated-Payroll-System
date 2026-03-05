@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('oauth_id')->unique()->nullable();             
             $table->string('name');
-            $table->text('email')->unique();
-            $table->string('password');
+            $table->string('email')->unique();
             $table->enum("type", [1, 2])->default(2);
             $table->rememberToken();
             $table->timestamps();

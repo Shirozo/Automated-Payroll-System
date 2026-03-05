@@ -17,9 +17,10 @@ Route::get("/test", function () {
     return response('', 200);
 });
 
-Route::get('/login', [SsoController::class, 'redirect'])->name('login');
-
-Route::get('/auth/callback', [SsoController::class, 'callback']);
+Route::middleware('web')->group(function () {
+    Route::get('/login', [SsoController::class, 'redirect'])->name('login');
+    Route::get('/auth/callback', [SsoController::class, 'callback']);
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
