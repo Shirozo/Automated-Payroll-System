@@ -10,6 +10,8 @@ use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SsoController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -102,5 +104,20 @@ Route::group(["prefix" => "payroll", "as" => "payroll.", "middleware" => ["auth"
     Route::put("/set/visible/id/{payroll}", [PayrollController::class, "updateVisible"])->name("update-view");
 });
 
+
+Route::post('/sso/logout', function (Request $request) {
+    // Verify the request came from your Auth-Server
+    if ($request->bearerToken() !== env('SSO_WEBHOOK_SECRET', 'your-super-secret-key')) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $userId = $request->input('user_id');
+
+    if ($userId) {
+        DB::table('sessions')->where('user_id', $userId)->delete();
+    }
+
+    return response()->json(['status' => 'logged out']);
+});
 
 require __DIR__ . '/auth.php';
