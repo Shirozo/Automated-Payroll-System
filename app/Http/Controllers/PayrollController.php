@@ -80,7 +80,7 @@ class PayrollController extends Controller
 
             if ($request->deduction == "retiree") {
                 $custom_deduction = $salary / 30 / 2;
-            } elseif($request->deduction == "death_aid") {
+            } elseif ($request->deduction == "death_aid") {
                 $custom_deduction = $salary / 30;
             } else {
                 $custom_deduction = $salary / 30 / 4;
@@ -110,7 +110,6 @@ class PayrollController extends Controller
                 "essu_union" => $essu_union,
                 "cfi" => $employee->deduction_cfi ? (float)$employee->deduction_cfi : 0,
             ]);
-
         }
 
         DB::commit();
@@ -164,6 +163,17 @@ class PayrollController extends Controller
 
         return redirect()->route("payroll.show")->with([
             "success" => "Payroll Deleted!",
+        ]);
+    }
+
+    public function updateVisible(Request $request, Payroll $payroll)
+    {
+        $payroll->update([
+            "viewable" => !$payroll->viewable
+        ]);
+
+        return redirect()->route("payroll.show")->with([
+            "success" => "Payroll Visibility Updated!",
         ]);
     }
 }
