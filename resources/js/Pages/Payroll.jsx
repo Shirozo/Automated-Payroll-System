@@ -11,15 +11,17 @@ import DataTable from 'react-data-table-component';
 import { toast, ToastContainer } from 'react-toastify';
 import axios from 'axios';
 import DangerButton from '@/Components/DangerButton';
+import DeletePayroll from '@/form/DeletePayroll';
 
 
 export default function Payroll({ flash }) {
 
-    // const { initAttendance, auth, employee } = usePage().props
     const { auth, availableDates, payroll } = usePage().props
 
     const [searchTerm, setSearchTerm] = useState("")
     const [isFormOpen, setIsFormOpen] = useState(false)
+    const [isDelOpen, setIsDelOpen] = useState(false)
+    const [delId, setDelId] = useState(0)
 
     const {
         data,
@@ -65,7 +67,7 @@ export default function Payroll({ flash }) {
     }, [payroll, searchTerm])
 
     const handleView = (id) => {
-        window.open(route('payroll.view', {payroll : id}));
+        window.open(route('payroll.view', { payroll: id }));
     }
 
     const handleVisible = (id) => {
@@ -73,7 +75,8 @@ export default function Payroll({ flash }) {
     }
 
     const handleDelete = (id) => {
-
+        setDelId(id)
+        setIsDelOpen(true)
     }
 
     useEffect(() => {
@@ -296,6 +299,14 @@ export default function Payroll({ flash }) {
                         </PrimaryButton>
                     </div>
                 </form>
+            </Modal>
+
+            <Modal show={isDelOpen} maxWidth='2xl'>
+                <DeletePayroll
+                    id={delId}
+                    closeModal={() => setIsDelOpen(false)}
+                    onDelSuccess={() => {}}
+                />
             </Modal>
 
         </AuthenticatedLayout>
