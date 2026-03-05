@@ -90,10 +90,10 @@ export default function Employee({ flash }) {
             width: "20%"
         },
         {
-            name: 'Username',
-            selector: row => row.user.username,
+            name: 'Email',
+            selector: row => row.user.email,
             sortable: true,
-            cell: row => <div className="text-muted-foreground">{row.user.username}</div>,
+            cell: row => <div className="text-muted-foreground">{row.user.email}</div>,
             width: "20%"
         },
         {

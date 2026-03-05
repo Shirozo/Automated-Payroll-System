@@ -89,7 +89,7 @@ export default function EmployeeDashboard() {
                         <div>
                             <h1 className="text-3xl font-semibold text-gray-900">{user_data.user.name}</h1>
                             <p className="mt-1 text-sm text-gray-500">#{user_data.employee_number}</p>
-                            <p className="mt-1 text-sm text-gray-500">@{user_data.user.username}</p>
+                            <p className="mt-1 text-sm text-gray-500">@{user_data.user.email}</p>
                         </div>
 
                         <div className="w-full">

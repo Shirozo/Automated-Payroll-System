@@ -63,17 +63,17 @@ class ThreeMonthsSeeder extends Seeder
 
         // 3. Create Users/Employees
         $usersData = [
-            ['name' => 'Admin User', 'username' => 'admin', 'password' => 'password', 'type' => '1'],
-            ['name' => 'John Doe', 'username' => 'johndoe', 'password' => 'password', 'type' => '2'],
-            ['name' => 'Jane Smith', 'username' => 'janesmith', 'password' => 'password', 'type' => '2'],
-            ['name' => 'Alice Johnson', 'username' => 'alicej', 'password' => 'password', 'type' => '2'],
+            ['name' => 'Admin User', 'email' => 'admin@noemail.com', 'password' => 'password', 'type' => '1'],
+            ['name' => 'John Doe', 'email' => 'johndoe@noemail.com', 'password' => 'password', 'type' => '2'],
+            ['name' => 'Jane Smith', 'email' => 'janesmith@noemail.com', 'password' => 'password', 'type' => '2'],
+            ['name' => 'Alice Johnson', 'email' => 'alicej@noemail.com', 'password' => 'password', 'type' => '2'],
         ];
 
         // Add 10 more employees
         for ($i = 1; $i <= 10; $i++) {
             $usersData[] = [
                 'name' => 'Employee ' . $i,
-                'username' => 'employee' . $i,
+                'email' => 'employee' . $i . "@noemail.com",
                 'password' => 'password',
                 'type' => '2',
             ];
@@ -83,7 +83,7 @@ class ThreeMonthsSeeder extends Seeder
         $userDeviceMap = [];
         foreach ($usersData as $index => $userData) {
             $randomIndex = array_rand($deviceIds);
-            $userDeviceMap[$userData['username']] = [
+            $userDeviceMap[$userData['email']] = [
                 'id' => $deviceIds[$randomIndex],
                 'mac' => $deviceMacs[$randomIndex]
             ];
@@ -93,7 +93,7 @@ class ThreeMonthsSeeder extends Seeder
 
         foreach ($usersData as $userData) {
             $user = User::firstOrCreate(
-                ['username' => $userData['username']],
+                ['email' => $userData['email']],
                 [
                     'name' => $userData['name'],
                     'password' => Hash::make($userData['password']),
@@ -104,7 +104,7 @@ class ThreeMonthsSeeder extends Seeder
             // Create Employee record if not exists
             $employee = Employee::where('user_id', $user->id)->first();
             if (!$employee) {
-                $assignedDevice = $userDeviceMap[$userData['username']];
+                $assignedDevice = $userDeviceMap[$userData['email']];
                 
                 $employee = Employee::create([
                     'user_id' => $user->id,

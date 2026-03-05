@@ -23,7 +23,7 @@ class EmployeeController extends Controller
 
         $user = User::create([
             "name" => $request->name,
-            "username" => $request->employee_number,
+            "email" => $request->employee_number . "@noemail.com",
             "password" => $request->employee_number,
         ]);
 
