@@ -8,6 +8,7 @@ class PayrollPdf extends Fpdf
 {
     public $month;
     public $year;
+    public $deduction;
     public $colWidths = [];
     public $renderTableHeader = true;
 
@@ -15,35 +16,43 @@ class PayrollPdf extends Fpdf
     {
         // Use the widths passed from the service
         $w = $this->colWidths;
+
+        if ($this->deduction == "retiree") {
+            $deduct_word = "Retiree Fin\nAsst.";
+        } else if ($this->deduction == "death_aid") {
+            $deduct_word = "Death\nAid.";
+        } else {
+            $deduct_word = "Health\nCare.";
+        }
         if (empty($w)) {
             // Fallback default widths just in case
             $w = [
-                8, // 0: Num
-                30, // 1: Name       (Increased for full name)
+                5, // 0: Num
+                25, // 1: Name       (Increased for full name)
                 25, // 2: Position   (Increased)
-                14, // 3: Emp No     (Increased)
-                15, // 4: Rate
-                10, // 5: PERA
-                15, // 6: Earned
-                9, // 7: GSIS MPL
-                9, // 8: PhilHealth
-                9, // 9: Local PAVE
-                9, // 10: Life & Ret
-                10, // 11: Pagibig Prem
-                10, // 12: Pagibig MP3
-                10, // 13: Pagibig Cal
-                12, // 14: City Sav
-                12, // 15: Withholding
-                13, // 16: Absence
-                10, // 17: IGP Cottage
-                9, // 18: ESSU FFA
-                12, // 19: Retiree Fin
-                9, // 20: ESSU Union
-                9, // 21: CFI
-                8, // 22: Num
-                20, // 23: Total Ded
-                20, // 24: Net Amount
-                20  // 25: Account No
+                20, // 3: Emp No     (Increased)
+                14, // 4: Rate
+                12, // 5: PERA
+                14, // 6: Earned
+                10, // 7: GSIS MPL
+                10, // 8: PhilHealth
+                10, // 9: Local PAVE
+                10, // 10: Life & Ret
+                11, // 11: Pagibig Prem
+                11, // 12: Pagibig MP3
+                11, // 13: Pagibig Cal
+                13, // 14: City Sav
+                13, // 15: Withholding
+                14, // 16: Absence
+                11, // 17: IGP Cottage
+                10, // 18: ESSU FFA
+                13, // 19: Retiree Fin
+                10, // 20: ESSU Union
+                10, // 21: CFI
+                5, // 22: Num
+                18, // 23: Total Ded
+                18, // 24: Net Amount
+                18  // 25: Account No
             ];
         }
 
@@ -249,7 +258,7 @@ class PayrollPdf extends Fpdf
             // Retiree (19)
             $this->SetXY($curDedX, $subHeaderY);
             $this->Rect($curDedX, $subHeaderY, $w[19], 9);
-            $this->MultiCell($w[19], 3, "Retiree's\nFin. Asst", 0, 'C');
+            $this->MultiCell($w[19], 3, $deduct_word, 0, 'C');
             $curDedX += $w[19];
 
             // Union (20)
@@ -283,38 +292,46 @@ class PayrollService
         // Use custom PayrollPdf class instead of injected Fpdf
         $pdf = new PayrollPdf('L', 'mm', 'Legal');
 
-        $pdf->month = isset($data['month']) ? strtoupper($data['month']) : 'JUNE';
-        $pdf->year = $data['year'] ?? '2025';
+        $pdf->month = $data->month;
+        $pdf->year = $data->year;
+        $pdf->deduction = $data->deduction;
+
+        $sortedPayrollData = $data->payrollData()
+            ->join('employees', 'payroll_data.employee_id', '=', 'employees.id')
+            ->join('users', 'employees.user_id', '=', 'users.id')
+            ->orderBy('users.name')
+            ->select('payroll_data.*') // Ensure we only get payroll_data fields back
+            ->get();
 
         // Columns configuration
         $w = [
-            8, // 0: Num
-            30, // 1: Name       (Increased for full name)
-            25, // 2: Position   (Increased)
-            14, // 3: Emp No     (Increased)
-            15, // 4: Rate
-            10, // 5: PERA
-            15, // 6: Earned
-            9, // 7: GSIS MPL
-            9, // 8: PhilHealth
-            9, // 9: Local PAVE
-            9, // 10: Life & Ret
-            10, // 11: Pagibig Prem
-            10, // 12: Pagibig MP3
-            10, // 13: Pagibig Cal
-            12, // 14: City Sav
-            12, // 15: Withholding
-            13, // 16: Absence
-            10, // 17: IGP Cottage
-            9, // 18: ESSU FFA
-            12, // 19: Retiree Fin
-            9, // 20: ESSU Union
-            9, // 21: CFI
-            8, // 22: Num
-            20, // 23: Total Ded
-            20, // 24: Net Amount
-            20  // 25: Account No
-        ];
+                5, // 0: Num
+                25, // 1: Name       (Increased for full name)
+                25, // 2: Position   (Increased)
+                20, // 3: Emp No     (Increased)
+                14, // 4: Rate
+                12, // 5: PERA
+                14, // 6: Earned
+                10, // 7: GSIS MPL
+                10, // 8: PhilHealth
+                10, // 9: Local PAVE
+                10, // 10: Life & Ret
+                11, // 11: Pagibig Prem
+                11, // 12: Pagibig MP3
+                11, // 13: Pagibig Cal
+                13, // 14: City Sav
+                13, // 15: Withholding
+                14, // 16: Absence
+                11, // 17: IGP Cottage
+                10, // 18: ESSU FFA
+                13, // 19: Retiree Fin
+                10, // 20: ESSU Union
+                10, // 21: CFI
+                5, // 22: Num
+                18, // 23: Total Ded
+                18, // 24: Net Amount
+                18  // 25: Account No
+            ];
 
         $pdf->colWidths = $w;
         $totalTableWidth = array_sum($w);
@@ -326,50 +343,132 @@ class PayrollService
 
         // --- Table Body ---
         $pdf->SetFont('Arial', '', 7);
-        $employees = $data['employees'] ?? [];
+        $totals = [
+            "rate" => 0,
+            "pera" => 0,
+            "earned" => 0,
+            "gsis_mpl" => 0,
+            "philhealth" => 0,
+            "local_pave" => 0,
+            "life_retirement" => 0,
+            "pagibig_premium" => 0,
+            "pagibig_mp3" => 0,
+            "pagibig_calamity" => 0,
+            "city_savings" => 0,
+            "withholding" => 0,
+            "ab_wo_pay" => 0,
+            "cottage" => 0,
+            "essu_ffa" => 0,
+            "custom_deduction" => 0,
+            "essu_union" => 0,
+            "cfi" => 0,
+            "total_deduction" => 0,
+            "total_net" => 0,
 
-        // Fill empty rows to make it look like a full sheet
-        if (count($employees) < 20) {
-            for ($i = count($employees); $i < 40; $i++) {
-                $employees[] = [];
-            }
-        }
+        ];
 
-        foreach ($employees as $index => $emp) {
+        foreach ($sortedPayrollData as $index => $emp) {
             $rowH = 5.5; // Row height
+
+            $total_deduction_emp = 0;
 
             // 0: Num
             $pdf->Cell($w[0], $rowH, $index + 1, 1, 0, 'C');
             // 1: Name
-            $pdf->Cell($w[1], $rowH, isset($emp['name']) ? strtoupper($emp['name']) : '', 1, 0, 'L');
+            $pdf->Cell($w[1], $rowH, $emp->employee->user->name, 1, 0, 'L');
             // 2: Position
-            $pdf->Cell($w[2], $rowH, $emp['position'] ?? '', 1, 0, 'L');
+            $pdf->Cell($w[2], $rowH, $emp->employee->position->name, 1, 0, 'C');
             // 3: Emp No
-            $pdf->Cell($w[3], $rowH, $emp['employee_no'] ?? '', 1, 0, 'C');
+            $pdf->Cell($w[3], $rowH, $emp->employee->employee_number, 1, 0, 'C');
+            $pdf->SetFont('Arial', '', 6);
             // 4: Rate
-            $pdf->Cell($w[4], $rowH, isset($emp['rate']) ? number_format($emp['rate'], 2) : '', 1, 0, 'R');
+            $pdf->Cell($w[4], $rowH, number_format($emp->rate, 2), 1, 0, 'R');
+            $totals["rate"] += $emp->rate;
             // 5: PERA
-            $pdf->Cell($w[5], $rowH, isset($emp['pera']) ? number_format($emp['pera'], 2) : '', 1, 0, 'R');
+            $pdf->Cell($w[5], $rowH, number_format($emp->pera, 2), 1, 0, 'R');
+            $totals["pera"] += $emp->pera;
             // 6: Earned
-            $pdf->Cell($w[6], $rowH, isset($emp['earned']) ? number_format($emp['earned'], 2) : '', 1, 0, 'R');
+            $pdf->Cell($w[6], $rowH, number_format($emp->period_earned, 2), 1, 0, 'R');
+            $totals["earned"] += $emp->period_earned;
 
-            // Deductions 7-21
-            // In a real app, map these keys correctly. simulating empty/formatted
-            for ($j = 7; $j <= 21; $j++) {
-                $pdf->Cell($w[$j], $rowH, '', 1, 0, 'R');
-            }
+            $pdf->SetFont('Arial', '', 5);
+            $pdf->Cell($w[7], $rowH, number_format($emp->gsis_mpl, 2), 1, 0, 'R');
+            $total_deduction_emp += $emp->gsis_mpl;
+            $totals["gsis_mpl"] += $emp->gsis_mpl;
 
+            $pdf->Cell($w[8], $rowH, number_format($emp->philhealth, 2), 1, 0, 'R');
+            $total_deduction_emp += $emp->philhealth;
+            $totals["philhealth"] += $emp->philhealth;
+
+            $pdf->Cell($w[9], $rowH, number_format($emp->local_pave, 2), 1, 0, 'R');
+            $total_deduction_emp += $emp->local_pave;
+            $totals["local_pave"] += $emp->local_pave;
+
+            $pdf->Cell($w[10], $rowH, number_format($emp->life_retirement, 2), 1, 0, 'R');
+            $total_deduction_emp += $emp->life_retirement;
+            $totals["life_retirement"] += $emp->life_retirement;
+
+            $pdf->Cell($w[11], $rowH, number_format($emp->pagibig_premium, 2), 1, 0, 'R');
+            $total_deduction_emp += $emp->pagibig_premium;
+            $totals["pagibig_premium"] += $emp->pagibig_premium;
+
+            $pdf->Cell($w[12], $rowH, number_format($emp->pagibig_mp3, 2), 1, 0, 'R');
+            $total_deduction_emp += $emp->pagibig_mp3;
+            $totals["pagibig_mp3"] += $emp->pagibig_mp3;
+
+            $pdf->Cell($w[13], $rowH, number_format($emp->pagibig_calamity, 2), 1, 0, 'R');
+            $total_deduction_emp += $emp->pagibig_calamity;
+            $totals["pagibig_calamity"] += $emp->pagibig_calamity;
+
+            $pdf->Cell($w[14], $rowH, number_format($emp->city_savings, 2), 1, 0, 'R');
+            $total_deduction_emp += $emp->city_savings;
+            $totals["city_savings"] += $emp->city_savings;
+
+            $pdf->Cell($w[15], $rowH, number_format($emp->withholding_tax, 2), 1, 0, 'R');
+            $total_deduction_emp += $emp->withholding_tax;
+            $totals["withholding"] += $emp->withholding_tax;
+
+            $pdf->Cell($w[16], $rowH, number_format($emp->absence_wo_pay, 2), 1, 0, 'R');
+            $total_deduction_emp += $emp->absence_wo_pay;
+            $totals["ab_wo_pay"] += $emp->absence_wo_pay;
+
+            $pdf->Cell($w[17], $rowH, number_format($emp->cottage_rental, 2), 1, 0, 'R');
+            $total_deduction_emp += $emp->cottage_rental;
+            $totals["cottage"] += $emp->cottage_rental;
+
+            $pdf->Cell($w[18], $rowH, number_format($emp->essu_ffa, 2), 1, 0, 'R');
+            $total_deduction_emp += $emp->essu_ffa;
+            $totals["essu_ffa"] += $emp->essu_ffa;
+
+            $pdf->Cell($w[19], $rowH, number_format($emp->custom_deduction, 2), 1, 0, 'R');
+            $total_deduction_emp += $emp->custom_deduction;
+            $totals["custom_deduction"] += $emp->custom_deduction;
+
+            $pdf->Cell($w[20], $rowH, number_format($emp->essu_union, 2), 1, 0, 'R');
+            $total_deduction_emp += $emp->essu_union;
+            $totals["essu_union"] += $emp->essu_union;
+
+            $pdf->Cell($w[21], $rowH, number_format($emp->cfi, 2), 1, 0, 'R');
+            $total_deduction_emp += $emp->cfi;
+            $totals["cfi"] += $emp->cfi;
+
+            $pdf->SetFont('Arial', '', 6);
             // 22: Num
             $pdf->Cell($w[22], $rowH, $index + 1, 1, 0, 'C');
 
             // 23: Total Ded
-            $pdf->Cell($w[23], $rowH, isset($emp['total_deductions']) ? number_format($emp['total_deductions'], 2) : '', 1, 0, 'R');
+            $pdf->Cell($w[23], $rowH, number_format($total_deduction_emp, 2), 1, 0, 'R');
+
+            $net = $emp->period_earned - $total_deduction_emp;
 
             // 24: Net
-            $pdf->Cell($w[24], $rowH, isset($emp['net_amount']) ? number_format($emp['net_amount'], 2) : '', 1, 0, 'R');
+            $pdf->Cell($w[24], $rowH, number_format($net, 2), 1, 0, 'R');
 
             // 25: Account No
             $pdf->Cell($w[25], $rowH, $emp['account_number'] ?? '', 1, 1, 'R');
+
+            $totals['total_deduction'] += $total_deduction_emp;
+            $totals['total_net'] += $net;
         }
 
         // --- TOTALS ROW ---
@@ -378,14 +477,28 @@ class PayrollService
         $pdf->Cell($totalLeftW, 5.5, 'TOTALS', 1, 0, 'C');
 
         // Compensations Totals
-        $pdf->Cell($w[4], 5.5, '0.00', 1, 0, 'R');
-        $pdf->Cell($w[5], 5.5, '0.00', 1, 0, 'R');
-        $pdf->Cell($w[6], 5.5, '0.00', 1, 0, 'R');
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->Cell($w[4], 5.5, number_format($totals["rate"], 2), 1, 0, 'R');
+        $pdf->Cell($w[5], 5.5, number_format($totals["pera"], 2), 1, 0, 'R');
+        $pdf->Cell($w[6], 5.5, number_format($totals["earned"], 2), 1, 0, 'R');
 
         // Deductions Totals
-        for ($j = 7; $j <= 21; $j++) {
-            $pdf->Cell($w[$j], 5.5, '0.00', 1, 0, 'R');
-        }
+        $pdf->SetFont('Arial', '', 5);
+        $pdf->Cell($w[7], 5.5, number_format($totals["gsis_mpl"], 2), 1, 0, 'R');
+        $pdf->Cell($w[8], 5.5, number_format($totals["philhealth"], 2), 1, 0, 'R');
+        $pdf->Cell($w[9], 5.5, number_format($totals["local_pave"], 2), 1, 0, 'R');
+        $pdf->Cell($w[10], 5.5, number_format($totals["life_retirement"], 2), 1, 0, 'R');
+        $pdf->Cell($w[11], 5.5, number_format($totals["pagibig_premium"], 2), 1, 0, 'R');
+        $pdf->Cell($w[12], 5.5, number_format($totals["pagibig_mp3"], 2), 1, 0, 'R');
+        $pdf->Cell($w[13], 5.5, number_format($totals["pagibig_calamity"], 2), 1, 0, 'R');
+        $pdf->Cell($w[14], 5.5, number_format($totals["city_savings"], 2), 1, 0, 'R');
+        $pdf->Cell($w[15], 5.5, number_format($totals["withholding"], 2), 1, 0, 'R');
+        $pdf->Cell($w[16], 5.5, number_format($totals["ab_wo_pay"], 2), 1, 0, 'R');
+        $pdf->Cell($w[17], 5.5, number_format($totals["cottage"], 2), 1, 0, 'R');
+        $pdf->Cell($w[18], 5.5, number_format($totals["essu_ffa"], 2), 1, 0, 'R');
+        $pdf->Cell($w[19], 5.5, number_format($totals["custom_deduction"], 2), 1, 0, 'R');
+        $pdf->Cell($w[20], 5.5, number_format($totals["essu_union"], 2), 1, 0, 'R');
+        $pdf->Cell($w[21], 5.5, number_format($totals["cfi"], 2), 1, 0, 'R');
 
         // End Totals
         $pdf->Cell($w[22], 5.5, '', 1, 0, 'C'); // Num
@@ -495,7 +608,7 @@ class PayrollService
         $pdf->Cell(15, 5, '', 'LB', 0, 'L');
         $pdf->Cell(50, 5, 'Administrative Officer V', 'B', 0, 'L');
         $pdf->Cell($halfW - 100, 5, 'Date', 'RB', 0, 'L');
-        $pdf->Cell(15, 5, 'Date:', 'B', 0,'L');
+        $pdf->Cell(15, 5, 'Date:', 'B', 0, 'L');
         $pdf->Cell(20, 5, '___________', 'RB', 1, 'L');
 
 
