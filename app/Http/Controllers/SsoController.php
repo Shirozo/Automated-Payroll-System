@@ -9,40 +9,28 @@ use Illuminate\Support\Facades\Auth;
 
 class SsoController extends Controller
 {
-    /**
-     * Redirect the user to the central Auth Server.
-     */
     public function redirect()
     {
+        // Removed stateless()
         return Socialite::driver('laravelpassport')->redirect();
     }
 
-    /**
-     * Handle the callback from the Auth Server.
-     */
-    public function callback()
+    public function callback(Request $request)
     {
         try {
-            // Retrieve the user information from the Auth Server
+            // Removed stateless()
             $ssoUser = Socialite::driver('laravelpassport')->user();
         } catch (\Exception $e) {
-            // If something goes wrong (e.g., user rejected the authorization)
-            return redirect('/')->withErrors('Authentication failed.');
+            dd($e);
         }
 
-        // Find the user in App 1's database, or create them if they don't exist
         $user = User::updateOrCreate(
-            ['email' => $ssoUser->getEmail()], // Match by email
-            [
-                'name' => $ssoUser->getName(),
-                // You can map other fields here if your Auth Server provides them
-            ]
+            ['email' => $ssoUser->getEmail()],
+            ['name' => $ssoUser->getName()]
         );
 
-        // Log the user into App 1 locally
         Auth::login($user);
 
-        // Redirect them to your app's dashboard or intended page
-        return redirect('/dashboard'); 
+        return redirect('/dashboard');
     }
 }
