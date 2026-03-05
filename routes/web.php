@@ -8,6 +8,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SsoController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -16,6 +17,10 @@ Route::get("/test", function () {
     return response('', 200);
 });
 
+Route::get('/login', [SsoController::class, 'redirect'])->name('login');
+
+Route::get('/auth/callback', [SsoController::class, 'callback']);
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -23,8 +28,6 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::group(["prefix" => "", "as" => "index.", "middleware" => ["auth"]], function () {
-
-    // Route::get("/", [EmployeeController::class, "show"])->name("show");
 
     Route::get("/dashboard", [DashboardController::class, "dashboard"])->name("dashboard");
 
