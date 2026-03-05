@@ -45,10 +45,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        $returnTo = urlencode(url('/'));
-        
-        $globalLogoutUrl = "http://192.168.88.247:8000/global-logout?redirect={$returnTo}";
-
-        return Inertia::location($globalLogoutUrl);
+        $returnUrl = urlencode(url('/'));
+        return \Inertia\Inertia::location("http://192.168.88.247:8000/logout?redirect={$returnUrl}");
     }
 }
