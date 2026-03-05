@@ -14,12 +14,22 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create()
+    public function create(Request $request)
     {
         if (Auth::user()) {
             return redirect()->intended(route('index.dashboard', absolute: false));
         }
-        return inertia("Auth/Login");
+
+        if ($request->has('sso_status')) {
+            if ($request->query('sso_status') === 'true') {
+                return \Laravel\Socialite\Facades\Socialite::driver('laravelpassport')->redirect();
+            } else {
+                return inertia("Auth/Login");
+            }
+        }
+
+        $returnUrl = urlencode(url()->current());
+        return redirect("http://192.168.88.247:8000/sso/check?return_to={$returnUrl}");
 
     }
 
