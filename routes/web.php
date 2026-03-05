@@ -91,8 +91,7 @@ Route::group(["prefix" => "payroll", "as" => "payroll.", "middleware" => ["auth"
 
     Route::post("/store", [PayrollController::class, "store"])->name("store");
 
-    Route::delete("/delete/id/{payroll}", [PositionController::class, "destroy"])->name("destroy");
-
+    Route::delete("/delete/id/{payroll}", [PayrollController::class, "destroy"])->name("destroy");
 
     Route::get("/view/id/{payroll}", [PayrollController::class, "view"])->name("view");
 });
