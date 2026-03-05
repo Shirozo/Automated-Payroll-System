@@ -162,7 +162,7 @@ class PayrollController extends Controller
 
         $payroll->delete();
 
-        return redirect()->route("position.show")->with([
+        return redirect()->route("payroll.show")->with([
             "success" => "Payroll Deleted!",
         ]);
     }
