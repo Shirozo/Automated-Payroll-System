@@ -5,7 +5,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { Edit, Eye, EyeClosed, EyeOff, Paperclip, Power, PowerOff, Printer, Search, Trash2, UploadCloud, View, X } from 'lucide-react';
+import { Edit, Eye, EyeClosed, EyeOff, Loader, Loader2, LoaderPinwheel, Paperclip, Power, PowerOff, Printer, Search, Trash2, UploadCloud, View, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import { toast, ToastContainer } from 'react-toastify';
@@ -35,6 +35,16 @@ export default function Payroll({ flash }) {
         month: "",
         deduction: "",
     })
+
+    const {
+        data: update,
+        setData: setUpdate,
+        put,
+        processing: updateProcessing,
+    } = useForm({
+        id: "",
+    })
+
 
     const availableYears = availableDates ? [...new Set(availableDates.map(d => d.year))].sort((a, b) => a - b) : []
 
@@ -71,7 +81,9 @@ export default function Payroll({ flash }) {
     }
 
     const handleVisible = (id) => {
-
+        console.log(id)
+        setUpdate("id", id)
+        put(route("payroll.update-view", { payroll: id }))
     }
 
     const handleDelete = (id) => {
@@ -111,7 +123,11 @@ export default function Payroll({ flash }) {
                         onClick={() => handleVisible(row.id)}
                         className="rounded-lg p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                     >
-                        <EyeOff className="h-4 w-4" />
+                        {row.viewable ? (
+                            <Eye className="h-4 w-4" />
+                        ) : (
+                            <EyeOff className="h-4 w-4" />
+                        )}
                     </SecondaryButton>
                     <DangerButton
                         onClick={() => handleDelete(row.id)}
@@ -301,11 +317,15 @@ export default function Payroll({ flash }) {
                 </form>
             </Modal>
 
+            <Modal show={updateProcessing} maxWidth='fit' className="">
+                <Loader2 class="animate-spin w-16 h-16" />
+            </Modal>
+
             <Modal show={isDelOpen} maxWidth='2xl'>
                 <DeletePayroll
                     id={delId}
                     closeModal={() => setIsDelOpen(false)}
-                    onDelSuccess={() => {}}
+                    onDelSuccess={() => { }}
                 />
             </Modal>
 
