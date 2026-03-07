@@ -451,4 +451,101 @@ class AttendanceController extends Controller
 
         return response()->json($attendances, 200);
     }
+
+    /**
+     * Amend bulk attendance records.
+     */
+    public function amend(Request $request)
+    {
+        if (Auth::user()->type != 1) {
+            return response()->json(['message' => 'Unauthorized action.'], 403);
+        }
+
+        $request->validate([
+            'attendance' => 'required|array',
+            'attendance.*.id' => 'required|exists:attendances,id',
+            'attendance.*.date' => 'required|date',
+            'attendance.*.am_login' => 'nullable|string',
+            'attendance.*.am_logout' => 'nullable|string',
+            'attendance.*.pm_login' => 'nullable|string',
+            'attendance.*.pm_logout' => 'nullable|string',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($request->attendance as $record) {
+                $attendance = Attendance::find($record['id']);
+
+                if (!$attendance) {
+                    continue;
+                }
+
+                $formatTime = function ($timeStr) {
+                    if (empty(trim($timeStr))) return null;
+                    if (strlen($timeStr) === 5) return $timeStr . ':00'; // "07:35" to "07:35:00"
+                    return $timeStr;
+                };
+
+                $am_login = $formatTime($record['am_login'] ?? null);
+                $am_logout = $formatTime($record['am_logout'] ?? null);
+                $pm_login = $formatTime($record['pm_login'] ?? null);
+                $pm_logout = $formatTime($record['pm_logout'] ?? null);
+
+                // 3. Backend Edge Case Validation (Time logical boundaries)
+                $checkTime = function($timeStr, $isAm, $isLogout = false) {
+                    if (!$timeStr) return true;
+                    $hour = (int) substr($timeStr, 0, 2);
+                    
+                    if ($isAm) {
+                        // Allow 12:XX strictly for AM Logout only
+                        if ($hour >= 12 && !($isLogout && $hour === 12)) return false; 
+                    } else {
+                        // Must be 12 PM (noon) or later
+                        if ($hour < 12) return false;
+                    }
+                    return true;
+                };
+
+                // Validate AM/PM rules
+                if (!$checkTime($am_login, true) || !$checkTime($am_logout, true, true)) {
+                    throw new \Exception("Invalid AM time detected for date {$record['date']}.");
+                }
+                if (!$checkTime($pm_login, false) || !$checkTime($pm_logout, false)) {
+                    throw new \Exception("Invalid PM time detected for date {$record['date']}.");
+                }
+
+                // Validate Chronology (Ins can't be after Outs)
+                if ($am_login && $am_logout && strtotime($am_login) >= strtotime($am_logout)) {
+                    throw new \Exception("AM login cannot be later than AM logout on {$record['date']}.");
+                }
+                if ($pm_login && $pm_logout && strtotime($pm_login) >= strtotime($pm_logout)) {
+                    throw new \Exception("PM login cannot be later than PM logout on {$record['date']}.");
+                }
+                if ($am_logout && $pm_login) {
+                    // PM Login is allowed at 12:xx as long as they already logged out for AM, and PM isn't earlier than AM logout
+                    if (strtotime($am_logout) > strtotime($pm_login)) {
+                        throw new \Exception("AM logout cannot be later than PM login on {$record['date']}.");
+                    }
+                }
+
+                 $attendance->update([
+                    'am_login' => $am_login,
+                    'am_logout' => $am_logout,
+                    'pm_login' => $pm_login,
+                    'pm_logout' => $pm_logout,
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json(['message' => 'Attendance successfully updated.'], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 422); // Unprocessable Entity
+        }
+    }
 }
