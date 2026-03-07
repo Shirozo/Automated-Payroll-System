@@ -32,6 +32,10 @@ export default function AttendanceLog({ flash }) {
     const [file, setFile] = useState(null)
     const [isDragging, setIsDragging] = useState(false)
 
+    const [dtrAmendModal, setDtrAmendModal] = useState(false);
+    const [amendEmployeeId, setAmendEmployeeId] = useState("");
+    const [dtrDataAmend, setDtrDataAmend] = useState([])
+
     const availableYears = useMemo(() => {
         return [...new Set(availableDates.map(d => d.year))]
     }, [availableDates])
@@ -56,6 +60,12 @@ export default function AttendanceLog({ flash }) {
             console.error(error)
             toast.error("Failed to fetch available dates")
         }
+    }
+
+    const getDtrAttendance = async(e) => {
+        const response = await fetch(route("attendance.getAttendance", {employee : e}))
+        const data = await response.json()
+        setDtrDataAmend(data)
     }
 
     const fetchAttendance = async (id) => {
@@ -159,6 +169,109 @@ export default function AttendanceLog({ flash }) {
         }
     }
 
+    const isInvalidTime = (field, record) => {
+        const value = record[field];
+        if (!value) return false;
+        
+        const hour = parseInt(value.split(':')[0], 10);
+
+        // helper to compare two string times "HH:mm" safely
+        const isTimeLessOrEqual = (time1, time2) => {
+             return new Date(`1970-01-01T${time1}`) <= new Date(`1970-01-01T${time2}`);
+        };
+        const isTimeLess = (time1, time2) => {
+             return new Date(`1970-01-01T${time1}`) < new Date(`1970-01-01T${time2}`);
+        };
+
+        if (field === 'am_login') {
+            // Must be AM timeframe (00:00 to 11:59)
+            return hour >= 12;
+        }
+
+        if (field === 'am_logout') {
+            // Must be AM timeframe or 12:XX (based on your sample data limits)
+            if (hour >= 12 && hour !== 12) return true;
+            
+            // Must be after am_login
+            if (record.am_login && isTimeLessOrEqual(value, record.am_login)) {
+                return true;
+            }
+        }
+
+        if (field === 'pm_login') {
+            // Can be starting from 12 PM as long as they logged out for AM
+            if (record.am_logout) {
+                if (isTimeLess(value, record.am_logout)) return true;
+            } else if (hour < 12) {
+                // If they don't have an AM logout context, strictly enforce PM frame
+                return true;
+            }
+        }
+
+        if (field === 'pm_logout') {
+            // Must be after PM Login
+            if (record.pm_login) {
+                if (isTimeLessOrEqual(value, record.pm_login)) return true;
+            } else if (hour < 12) {
+                // If there's no pm_login to compare, roughly enforce PM bounds
+                return true;
+            }
+        }
+        
+        return false;
+    };
+
+    const handleTimeChange = (index, field, value) => {
+        const newData = [...dtrDataAmend];
+        newData[index][field] = value;
+        setDtrDataAmend(newData);
+    };
+
+    const handleAmendSubmit = async (e) => {
+        e.preventDefault();
+
+        // Check for any invalid times before submitting
+        const hasInvalidDates = dtrDataAmend.some(record => 
+            isInvalidTime('am_login', record) ||
+            isInvalidTime('am_logout', record) ||
+            isInvalidTime('pm_login', record) ||
+            isInvalidTime('pm_logout', record)
+        );
+
+        if (hasInvalidDates) {
+            toast.error("Please fix invalid AM/PM times before saving.");
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            
+            const response = await fetch(route('attendance.amend'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ attendance: dtrDataAmend })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                toast.success("Attendance updated successfully");
+                setDtrAmendModal(false);
+            } else {
+                toast.error(data.message || "Failed to update attendance");
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to update attendance");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const filteredAttendance = useMemo(() => {
         return attendance.filter(
@@ -293,9 +406,14 @@ export default function AttendanceLog({ flash }) {
                                 Generate DTR
                             </PrimaryButton>
                             {auth.user.type == 1 && (
-                                <PrimaryButton onClick={() => setIsUploadModalOpen(true)} className="gap-2">
-                                    Upload Attendance
-                                </PrimaryButton>
+                                <>
+                                    <PrimaryButton onClick={() => setDtrAmendModal(true)} className="gap-2">
+                                        Amend Attendance
+                                    </PrimaryButton>
+                                    <PrimaryButton onClick={() => setIsUploadModalOpen(true)} className="gap-2">
+                                        Upload Attendance
+                                    </PrimaryButton>
+                                </>
                             )}
                         </div>
                     </div>
@@ -487,6 +605,125 @@ export default function AttendanceLog({ flash }) {
 
                         <PrimaryButton className="ms-3" disabled={isLoading || !file}>
                             Upload
+                        </PrimaryButton>
+                    </div>
+                </form>
+            </Modal>
+
+            <Modal show={dtrAmendModal} maxWidth='6xl'>
+                <form className='p-6 flex flex-col max-h-[90vh]' onSubmit={handleAmendSubmit}>
+                    <div className="flex justify-between items-center mb-5 shrink-0">
+                        <h2 className='text-lg font-medium text-gray-900'>
+                            Amend Attendance
+                        </h2>
+                        <button type="button" onClick={() => { setDtrAmendModal(false); setDtrDataAmend([]); setAmendEmployeeId(""); }} className="text-gray-400 hover:text-gray-500">
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+
+                    <div className='mt-2 shrink-0'>
+                        <div className='w-full'>
+                            <InputLabel
+                                htmlFor="employee_id"
+                                value="Employee"
+                            />
+
+                            <select
+                                id='employee_id'
+                                name='employee_id'
+                                required={true}
+                                value={amendEmployeeId}
+                                onChange={(e) => {
+                                    setAmendEmployeeId(e.target.value)
+                                    getDtrAttendance(e.target.value)
+                                }}
+                                className='mt-1 block w-full md:w-1/3 focus:border-green-300 outline-green-300 rounded-md border-gray-300 shadow-sm'>
+                                <option value="">Select Employee</option>
+                                {employee.map((e) => (
+                                    <option key={e.id} value={e.id}>{e.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {dtrDataAmend.length > 0 ? (
+                        <div className="mt-6 overflow-y-auto flex-1 border rounded-lg">
+                            <table className="w-full text-sm text-left">
+                                <thead className="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0 z-10 shadow-sm">
+                                    <tr>
+                                        <th className="px-6 py-3">Date</th>
+                                        <th className="px-2 py-3 whitespace-nowrap">AM In</th>
+                                        <th className="px-2 py-3 whitespace-nowrap">AM Out</th>
+                                        <th className="px-2 py-3 whitespace-nowrap">PM In</th>
+                                        <th className="px-2 py-3 whitespace-nowrap">PM Out</th>
+                                        <th className="px-6 py-3">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {dtrDataAmend.map((record, index) => (
+                                        <tr key={record.id} className="bg-white border-b hover:bg-gray-50">
+                                            <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                                {record.date}
+                                            </td>
+                                            <td className="px-2 py-2">
+                                                <input
+                                                    type="time"
+                                                    step="1"
+                                                    className={`w-full border-gray-300 rounded-md shadow-sm sm:text-sm ${isInvalidTime('am_login', record) ? 'border-red-500 focus:border-red-500 focus:ring-red-500 bg-red-50 text-red-900' : 'focus:border-green-300 focus:ring-green-300'}`}
+                                                    value={record.am_login || ''}
+                                                    onChange={(e) => handleTimeChange(index, 'am_login', e.target.value)}
+                                                />
+                                            </td>
+                                            <td className="px-2 py-2">
+                                                <input
+                                                    type="time"
+                                                    step="1"
+                                                    className={`w-full border-gray-300 rounded-md shadow-sm sm:text-sm ${isInvalidTime('am_logout', record) ? 'border-red-500 focus:border-red-500 focus:ring-red-500 bg-red-50 text-red-900' : 'focus:border-green-300 focus:ring-green-300'}`}
+                                                    value={record.am_logout || ''}
+                                                    onChange={(e) => handleTimeChange(index, 'am_logout', e.target.value)}
+                                                />
+                                            </td>
+                                            <td className="px-2 py-2">
+                                                <input
+                                                    type="time"
+                                                    step="1"
+                                                    className={`w-full border-gray-300 rounded-md shadow-sm sm:text-sm ${isInvalidTime('pm_login', record) ? 'border-red-500 focus:border-red-500 focus:ring-red-500 bg-red-50 text-red-900' : 'focus:border-green-300 focus:ring-green-300'}`}
+                                                    value={record.pm_login || ''}
+                                                    onChange={(e) => handleTimeChange(index, 'pm_login', e.target.value)}
+                                                />
+                                            </td>
+                                            <td className="px-2 py-2">
+                                                <input
+                                                    type="time"
+                                                    step="1"
+                                                    className={`w-full border-gray-300 rounded-md shadow-sm sm:text-sm ${isInvalidTime('pm_logout', record) ? 'border-red-500 focus:border-red-500 focus:ring-red-500 bg-red-50 text-red-900' : 'focus:border-green-300 focus:ring-green-300'}`}
+                                                    value={record.pm_logout || ''}
+                                                    onChange={(e) => handleTimeChange(index, 'pm_logout', e.target.value)}
+                                                />
+                                            </td>
+                                            <td className="px-6 py-4 uppercase">
+                                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${record.tag === 'present' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                                    {record.tag}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="mt-10 mb-5 text-center text-gray-500">
+                            {amendEmployeeId ? "No attendance data found for this employee." : "Please select an employee to view and amend attendance records."}
+                        </div>
+                    )}
+
+                    <div className='mt-6 flex justify-end shrink-0'>
+                        <SecondaryButton type="button" onClick={() => { setDtrAmendModal(false); setDtrDataAmend([]); setAmendEmployeeId(""); }} disabled={isLoading}>
+                            Cancel
+                        </SecondaryButton>
+
+                        <PrimaryButton className="ms-3" disabled={isLoading || dtrDataAmend.length === 0}>
+                            Save Changes
                         </PrimaryButton>
                     </div>
                 </form>
