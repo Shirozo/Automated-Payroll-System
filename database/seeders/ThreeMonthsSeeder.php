@@ -138,8 +138,8 @@ class ThreeMonthsSeeder extends Seeder
 
         // 4. Generate Attendance for last 3 months
         // From Dec 1, 2025 to Feb 28, 2026
-        $startDate = Carbon::create(2025, 12, 1);
-        $endDate = Carbon::create(2026, 2, 28);
+        $startDate = Carbon::create(2026, 1, 1);
+        $endDate = Carbon::create(2026, 3, 31);
 
         $currentDate = $startDate->copy();
 
