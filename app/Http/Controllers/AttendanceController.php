@@ -440,4 +440,15 @@ class AttendanceController extends Controller
             return response()->json(['message' => 'Failed to create DTR.'], 500);
         }
     }
+
+    public function getAttendance(Request $request, Employee $employee)
+    {
+        $attendances = Attendance::where('employee_id', $employee->id)
+            ->whereMonth('date', Carbon::now('Asia/Manila')->month)
+            ->whereYear('date', Carbon::now('Asia/Manila')->year)
+            ->orderBy('date', 'asc')
+            ->get();
+
+        return response()->json($attendances, 200);
+    }
 }
