@@ -390,6 +390,7 @@ class AttendanceController extends Controller
                 $am_out = '';
                 $pm_in = '';
                 $pm_out = '';
+                $hours_rendered = 0;
 
                 if (!$date->isWeekend()) {
                     $dateString = $date->format('Y-m-d');
@@ -403,6 +404,14 @@ class AttendanceController extends Controller
                         $am_out = $dayAttendance->am_logout ?? '';
                         $pm_in = $dayAttendance->pm_login ?? '';
                         $pm_out = $dayAttendance->pm_logout ?? '';
+
+                        if ($am_in && $am_out) {
+                            $hours_rendered += Carbon::parse($am_in)->diffInMinutes(Carbon::parse($am_out)) / 60;
+                        }
+
+                        if ($pm_in && $pm_out) {
+                            $hours_rendered += Carbon::parse($pm_in)->diffInMinutes(Carbon::parse($pm_out)) / 60;
+                        }
                     }
                 }
 
@@ -410,10 +419,12 @@ class AttendanceController extends Controller
 
                 $attendanceData[] = [
                     'date' => $date->day,
+                    'day' => $date->format('D'),
                     'am_in' => $am_in,
                     'am_out' => $am_out,
                     'pm_in' => $pm_in,
                     'pm_out' => $pm_out,
+                    'hours_rendered' => round($hours_rendered, 2), // Round to 2 decimal places
                 ];
             }
 
