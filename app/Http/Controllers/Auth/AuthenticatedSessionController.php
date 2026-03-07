@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 class AuthenticatedSessionController extends Controller
@@ -16,20 +17,27 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(Request $request)
     {
-        if (Auth::user()) {
-            return redirect()->intended(route('index.dashboard', absolute: false));
-        }
+        return inertia('LoginPage', [
+            'canResetPassword' => Route::has('password.request'),
+            'status' => session('status'),
+        ]);
 
-        if ($request->has('sso_status')) {
-            if ($request->query('sso_status') === 'true') {
-                return \Laravel\Socialite\Facades\Socialite::driver('laravelpassport')->redirect();
-            } else {
-                return inertia("Auth/Login");
-            }
-        }
+        
+        // Only uncomment when using central authentication server
+        // if (Auth::user()) {
+        //     return redirect()->intended(route('index.dashboard', absolute: false));
+        // }
 
-        $returnUrl = urlencode(url()->current());
-        return redirect("http://192.168.17.234:8000/sso/check?return_to={$returnUrl}");
+        // if ($request->has('sso_status')) {
+        //     if ($request->query('sso_status') === 'true') {
+        //         return \Laravel\Socialite\Facades\Socialite::driver('laravelpassport')->redirect();
+        //     } else {
+        //         return inertia("Auth/Login");
+        //     }
+        // }
+
+        // $returnUrl = urlencode(url()->current());
+        // return redirect("http://192.168.17.234:8000/sso/check?return_to={$returnUrl}");
 
     }
 
@@ -53,8 +61,10 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        return redirect('/');
 
-        $returnUrl = urlencode(url('/'));
-        return \Inertia\Inertia::location("http://192.168.17.234:8000/logout?redirect={$returnUrl}");
+        // Only uncomment when using central authentication server
+        // $returnUrl = urlencode(url('/'));
+        // return \Inertia\Inertia::location("http://192.168.17.234:8000/logout?redirect={$returnUrl}");
     }
 }
