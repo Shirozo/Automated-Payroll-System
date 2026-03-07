@@ -63,10 +63,10 @@ class ThreeMonthsSeeder extends Seeder
 
         // 3. Create Users/Employees
         $usersData = [
-            ['name' => 'Neil Bryan Bagas', 'email' => 'neilbryancaranzo123@gmail.com', 'type' => '2'],
-            ['name' => 'John Doe', 'email' => 'johndoe@noemail.com', 'type' => '2'],
-            ['name' => 'Admin User', 'email' => 'admin@noemail.com', 'type' => '1'],
-            ['name' => 'Alice Johnson', 'email' => 'alicej@noemail.com', 'type' => '2'],
+            ['name' => 'Admin User', 'email' => 'admin@noemail.com', 'password' => 'password', 'type' => '1'],
+            ['name' => 'John Doe', 'email' => 'johndoe@noemail.com', 'password' => 'password', 'type' => '2'],
+            ['name' => 'Jane Smith', 'email' => 'janesmith@noemail.com', 'password' => 'password', 'type' => '2'],
+            ['name' => 'Alice Johnson', 'email' => 'alicej@noemail.com', 'password' => 'password', 'type' => '2'],
         ];
 
         // Add 10 more employees
@@ -95,7 +95,8 @@ class ThreeMonthsSeeder extends Seeder
                 ['email' => $userData['email']],
                 [
                     'name' => $userData['name'],
-                    'type' => $userData['type']
+                    'type' => $userData['type'],
+                    'password' => "password"
                 ]
             );
 
