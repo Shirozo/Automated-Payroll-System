@@ -19,9 +19,14 @@ Route::get("/test", function () {
     return response('', 200);
 });
 
-Route::middleware('web')->group(function () {
-    Route::get('/login', [SsoController::class, 'redirect'])->name('login');
-    Route::get('/auth/callback', [SsoController::class, 'callback']);
+// Only uncomment when using central authentication server
+// Route::middleware('web')->group(function () {
+//     Route::get('/login', [SsoController::class, 'redirect'])->name('login');
+//     Route::get('/auth/callback', [SsoController::class, 'callback']);
+// });
+
+Route::get("/", function() {
+    return inertia("Guest");
 });
 
 Route::middleware('auth')->group(function () {
@@ -100,7 +105,7 @@ Route::group(["prefix" => "payroll", "as" => "payroll.", "middleware" => ["auth"
     Route::delete("/delete/id/{payroll}", [PayrollController::class, "destroy"])->name("destroy");
 
     Route::get("/view/id/{payroll}", [PayrollController::class, "view"])->name("view");
-    
+
     Route::put("/set/visible/id/{payroll}", [PayrollController::class, "updateVisible"])->name("update-view");
 });
 
