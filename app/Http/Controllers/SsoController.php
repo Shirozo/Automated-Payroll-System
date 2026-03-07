@@ -21,7 +21,7 @@ class SsoController extends Controller
             // Removed stateless()
             $ssoUser = Socialite::driver('laravelpassport')->user();
         } catch (\Exception $e) {
-            dd($e);
+            return;
         }
 
         $user = User::updateOrCreate(
