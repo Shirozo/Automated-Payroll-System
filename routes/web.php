@@ -25,7 +25,7 @@ Route::get("/test", function () {
 //     Route::get('/auth/callback', [SsoController::class, 'callback']);
 // });
 
-Route::get("/", function() {
+Route::get("/", function () {
     return inertia("Guest");
 });
 
@@ -78,7 +78,7 @@ Route::group(["prefix" => "device", "as" => "device.", "middleware" => ['auth']]
 
 Route::group(["prefix" => "attendance", "as" => "attendance."], function () {
 
-    Route::get("/", [AttendanceController::class, "show"])->name("show");
+    Route::get("/", [AttendanceController::class, "show"])->name("show")->middleware("auth");
 
     Route::post("/store", [AttendanceController::class, "store"])->name("store")
         ->withoutMiddleware([VerifyCsrfToken::class, "auth"]);
@@ -94,6 +94,11 @@ Route::group(["prefix" => "attendance", "as" => "attendance."], function () {
 
     Route::get("/generate/dtr", [AttendanceController::class, "generateDTR"])->name("dtr")
         ->middleware("auth");
+
+    Route::get("/get/employee/id/{employee}", [AttendanceController::class, "getAttendance"])
+        ->name("getAttendance")->middleware("auth");
+
+    Route::post('/attendance/amend', [AttendanceController::class, 'amend'])->name('amend')->middleware("auth");
 });
 
 Route::group(["prefix" => "payroll", "as" => "payroll.", "middleware" => ["auth"]], function () {
@@ -110,19 +115,20 @@ Route::group(["prefix" => "payroll", "as" => "payroll.", "middleware" => ["auth"
 });
 
 
-Route::post('/sso/logout', function (Request $request) {
-    // Verify the request came from your Auth-Server
-    if ($request->bearerToken() !== env('SSO_WEBHOOK_SECRET', 'your-super-secret-key')) {
-        return response()->json(['error' => 'Unauthorized'], 401);
-    }
+// Only uncomment when using central authentication server
+// Route::post('/sso/logout', function (Request $request) {
+//     // Verify the request came from your Auth-Server
+//     if ($request->bearerToken() !== env('SSO_WEBHOOK_SECRET', 'your-super-secret-key')) {
+//         return response()->json(['error' => 'Unauthorized'], 401);
+//     }
 
-    $userId = $request->input('user_id');
+//     $userId = $request->input('user_id');
 
-    if ($userId) {
-        DB::table('sessions')->where('user_id', $userId)->delete();
-    }
+//     if ($userId) {
+//         DB::table('sessions')->where('user_id', $userId)->delete();
+//     }
 
-    return response()->json(['status' => 'logged out']);
-});
+//     return response()->json(['status' => 'logged out']);
+// });
 
 require __DIR__ . '/auth.php';
