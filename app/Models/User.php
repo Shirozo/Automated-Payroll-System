@@ -20,8 +20,10 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'oauth_id',
+        'password',
         "type",
+        // Only uncomment when using central authentication server
+        // 'oauth_id',
     ];
 
     /**
