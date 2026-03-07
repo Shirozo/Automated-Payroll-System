@@ -375,13 +375,11 @@ class AttendanceController extends Controller
             $attendances = Attendance::where('employee_id', $employee->id)
                 ->whereYear('date', $dateForMonth->year)
                 ->whereMonth('date', $dateForMonth->month)
-                ->get()
-                ->groupBy('date');
+                ->get();
 
             if ($attendances->count() <= 0) {
                 return response()->json(['message' => 'No Data to Show.'], 500);
             }
-
 
             $attendanceData = [];
 
@@ -396,15 +394,19 @@ class AttendanceController extends Controller
                 if (!$date->isWeekend()) {
                     $dateString = $date->format('Y-m-d');
 
-                    if ($attendances->has($dateString)) {
-                        $dayAttendance = $attendances->get($dateString);
 
-                        $am_in = $dayAttendance->where('action', 'am_login')->first()?->time ?? '';
-                        $am_out = $dayAttendance->where('action', 'am_logout')->first()?->time ?? '';
-                        $pm_in = $dayAttendance->where('action', 'pm_login')->first()?->time ?? '';
-                        $pm_out = $dayAttendance->where('action', 'pm_logout')->first()?->time ?? '';
+                    $dayAttendance = $attendances->where("date", $dateString)->first();
+                    if ($dayAttendance) {
+
+
+                        $am_in = $dayAttendance->am_login ?? '';
+                        $am_out = $dayAttendance->am_logout ?? '';
+                        $pm_in = $dayAttendance->pm_login ?? '';
+                        $pm_out = $dayAttendance->pm_logout ?? '';
                     }
                 }
+
+
 
                 $attendanceData[] = [
                     'date' => $date->day,
