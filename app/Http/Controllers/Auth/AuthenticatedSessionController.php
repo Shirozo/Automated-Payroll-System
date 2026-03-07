@@ -29,7 +29,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         $returnUrl = urlencode(url()->current());
-        return redirect("http://192.168.88.247:8000/sso/check?return_to={$returnUrl}");
+        return redirect("http://192.168.17.234:8000/sso/check?return_to={$returnUrl}");
 
     }
 
@@ -55,6 +55,6 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         $returnUrl = urlencode(url('/'));
-        return \Inertia\Inertia::location("http://192.168.88.247:8000/logout?redirect={$returnUrl}");
+        return \Inertia\Inertia::location("http://192.168.17.234:8000/logout?redirect={$returnUrl}");
     }
 }
