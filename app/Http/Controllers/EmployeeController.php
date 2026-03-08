@@ -77,9 +77,22 @@ class EmployeeController extends Controller
         return redirect()->route("employee.show")->with('success', 'Employee updated successfully');
     }
 
-    public function destroy(Employee $employee)
+    public function destroy(Request $request, Employee $employee)
     {
         //
+        $request->validate([
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = User::where("id", $employee->user_id)->first();
+
+        $user->delete();
+
+        $employee->delete();
+
+        return redirect()->route("employee.show")->with([
+            "success" => "Employee Deleted!",
+        ]);
     }
 
     public function updateDevice(Request $request, Employee $employee) {
