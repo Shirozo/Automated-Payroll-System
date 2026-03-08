@@ -67,6 +67,8 @@ Route::group(["prefix" => "position", "as" => "position.", "middleware" => ["aut
 Route::group(["prefix" => "configuration", "as" => "configuration.", "middleware" => ["auth"]], function () {
 
     Route::get('/', [ConfigurationController::class, "show"])->name("show");
+
+    Route::put("/update/attendance", [ConfigurationController::class, "updateAttendance"])->name("updateAttendance");
 });
 
 Route::group(["prefix" => "device", "as" => "device.", "middleware" => ['auth']], function () {
