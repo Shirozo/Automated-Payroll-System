@@ -8,7 +8,7 @@ import { useForm } from "@inertiajs/react";
 export default function Compensation({ config_data }) {
 
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } =
+    const { data, setData, put, errors, processing, recentlySuccessful } =
         useForm({
             pera: config_data.pera,
         });
@@ -16,7 +16,7 @@ export default function Compensation({ config_data }) {
     const submit = (e) => {
         e.preventDefault();
 
-        patch(route('profile.update'));
+        put(route('configuration.updateCompensation'));
     };
 
     return (
