@@ -48,6 +48,8 @@ Route::group(["prefix" => "employee", "as" => "employee.", "middleware" => ["aut
 
     Route::post("/store", [EmployeeController::class, "store"])->name("store");
 
+    Route::delete("/destroy/id/{employee}", [EmployeeController::class, "destroy"])->name("destroy");
+
     Route::put("/update/employee/{employee}", [EmployeeController::class, "update"])->name("update");
 
     Route::put("/update/device/id/{employee}", [EmployeeController::class, "updateDevice"])->name("device");
