@@ -11,6 +11,7 @@ use App\Models\PayrollData;
 use App\Services\PayrollService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PayrollController extends Controller
@@ -121,6 +122,7 @@ class PayrollController extends Controller
     {
         //
 
+        $employee_id = 0;
         $availableDates = Attendance::select('date')
             ->get()
             ->map(function ($attendance) {
@@ -145,11 +147,18 @@ class PayrollController extends Controller
                 ];
             });
 
-        $payroll = Payroll::all();
+
+        if (Auth::user()->type == 1) {
+            $payroll = Payroll::all();
+        } else {
+            $payroll = Payroll::all()->where("viewable", true);
+            $employee_id = Employee::where("user_id", Auth::user()->id)->first()->id;
+        }
 
         return inertia("Payroll", [
             "availableDates" => $availableDates,
-            "payroll" => $payroll
+            "payroll" => $payroll,
+            "employee_id" => $employee_id
         ]);
     }
 
@@ -175,5 +184,15 @@ class PayrollController extends Controller
         return redirect()->route("payroll.show")->with([
             "success" => "Payroll Visibility Updated!",
         ]);
+    }
+
+    public function getPaySlip(Request $request, Payroll $payroll, Employee $employee)
+    {
+        $payslip = PayrollData::with(["payroll"])->where([
+            ["employee_id", $employee->id],
+            ["payroll_id", $payroll->id],
+        ])->first();
+
+        return response()->json($payslip, 200);
     }
 }
