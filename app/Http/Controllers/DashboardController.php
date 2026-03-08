@@ -16,7 +16,7 @@ class DashboardController extends Controller
         if (Auth::user()->type == 2) {
             return redirect()->route("index.employee");
         }
-        return inertia("Dashboard");
+        return redirect()->route("attendance.show");
     }
 
     public function employee(Request $request)
