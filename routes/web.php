@@ -110,8 +110,10 @@ Route::group(["prefix" => "payroll", "as" => "payroll.", "middleware" => ["auth"
     Route::delete("/delete/id/{payroll}", [PayrollController::class, "destroy"])->name("destroy");
 
     Route::get("/view/id/{payroll}", [PayrollController::class, "view"])->name("view");
-
+    
     Route::put("/set/visible/id/{payroll}", [PayrollController::class, "updateVisible"])->name("update-view");
+
+    Route::get("/view/id/{payroll}/employee/{employee}", [PayrollController::class, "getPaySlip"])->name("getPaySlip");
 });
 
 
