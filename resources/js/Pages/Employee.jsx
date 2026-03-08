@@ -3,6 +3,8 @@ import Modal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import AddUserForm from '@/form/AddUserForm';
+import DeleteEmployee from '@/form/DeleteEmployee';
+import DeletePositionForm from '@/form/DeletePositionForm';
 import EditUserForm from '@/form/EditUserForm';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
@@ -24,6 +26,9 @@ export default function Employee({ flash }) {
     const [sortBy, setSortBy] = useState("name")
     const [isLoading, setIsLoading] = useState(true)
 
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+    const [deleteId, setDeleteId] = useState(0)
+
 
     const handleEditClick = (employee) => {
         setEditingData(employee)
@@ -32,6 +37,7 @@ export default function Employee({ flash }) {
 
     const handleDelete = (id) => {
         setEmployees(employees.filter((emp) => emp.id !== id))
+        setIsDeleteOpen(false)
     }
 
     const getStatusColor = (status) => {
@@ -50,9 +56,9 @@ export default function Employee({ flash }) {
     const filteredEmployees = useMemo(() => {
         return employees.filter(
             (emp) =>
-                emp.user.name.toLowerCase().includes(searchTerm.toLowerCase()) 
-                // emp.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                // emp.department.toLowerCase().includes(searchTerm.toLowerCase())
+                emp.user.name.toLowerCase().includes(searchTerm.toLowerCase())
+            // emp.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            // emp.department.toLowerCase().includes(searchTerm.toLowerCase())
         )
     }, [employees, searchTerm])
 
@@ -60,7 +66,7 @@ export default function Employee({ flash }) {
         const sorted = [...filteredEmployees]
         if (sortBy === "name") {
             sorted.sort((a, b) => a.user.name.localeCompare(b.user.name))
-        } 
+        }
         // else if (sortBy === "department") {
         //     sorted.sort((a, b) => a.department.localeCompare(b.department))
         // } 
@@ -132,7 +138,7 @@ export default function Employee({ flash }) {
                         <Edit className="h-4 w-4" />
                     </PrimaryButton>
                     <SecondaryButton
-                        onClick={() => handleDelete(row.id)}
+                        onClick={() => {setDeleteId(row.id); setIsDeleteOpen(true)}}
                         className="rounded-lg p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                     >
                         <Trash2 className="h-4 w-4" />
@@ -260,6 +266,14 @@ export default function Employee({ flash }) {
                     closeModal={() => setIsFormEditOpen(false)}
                     positions={positions}
                     user_data={editingData}
+                />
+            </Modal>
+
+            <Modal show={isDeleteOpen} maxWidth='2xl'>
+                <DeleteEmployee
+                    id={deleteId}
+                    closeModal={() => setIsDeleteOpen(false)}
+                    onDelSuccess={handleDelete}
                 />
             </Modal>
         </AuthenticatedLayout>
