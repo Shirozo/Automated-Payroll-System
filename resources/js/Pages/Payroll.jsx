@@ -58,6 +58,22 @@ export default function Payroll({ flash }) {
         setPayslipData(data)
     }
 
+    const getDeductionName = (name) => {
+        if (name === "retiree") {
+            return "Retiree Finn. Asst."
+        } else if (name === "death_aid") {
+            return "Death Aid"
+        } else {
+            return "Healthcare"
+        }
+
+    }
+
+    const getTotalDeduction = () => {
+        const keys = ['gsis_mpl', 'philhealth', 'local_pave', 'life_retirement', 'pagibig_premium', 'pagibig_mp3', 'pagibig_calamity', 'city_savings', 'withholding_tax', 'absence_wo_pay', 'cottage_rental', 'essu_ffa', 'custom_deduction', 'essu_union', 'cfi'];
+        return keys.reduce((sum, key) => sum + (Number(paySlipData[key]) || 0), 0);
+    }
+
 
     const availableYears = availableDates ? [...new Set(availableDates.map(d => d.year))].sort((a, b) => a - b) : []
 
@@ -158,7 +174,7 @@ export default function Payroll({ flash }) {
                                 setPayslip(true);
                             }}
                             className='rounded-lg p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors'>
-                            <Receipt className='h-4 w-4'/>
+                            <Receipt className='h-4 w-4' />
                         </PrimaryButton>
                     )}
                 </div>
@@ -360,42 +376,59 @@ export default function Payroll({ flash }) {
                     <h2 className='text-lg uppercase mb-5 font-medium text-gray-900 border-b pb-2'>
                         Payslip
                     </h2>
-                    
+
                     {paySlipData ? (
                         <div className="text-sm">
-                            <div className="grid grid-cols-2 gap-4 mb-4">
-                                <div>
+                            <div className="flex flex-col gap-2 mb-4">
+                                <div className="flex justify-between">
                                     <span className="text-gray-500 font-semibold">Days Present / Absent: </span>
                                     <span>{paySlipData.days_present} / {paySlipData.days_absent}</span>
                                 </div>
-                                <div className="text-right">
+                                <div className="flex justify-between">
                                     <span className="text-gray-500 font-semibold">Base Rate: </span>
-                                    <span>₱ {Number(paySlipData.rate).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                    <span>₱ {Number(paySlipData.rate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-8 mt-4">
+                            <div className="flex flex-col gap-6 mt-4">
                                 <div>
                                     <h3 className="font-bold text-green-700 border-b pb-1 mb-2">Earnings</h3>
-                                    <div className="flex justify-between mb-1"><span>Period Earned</span> <span>₱ {Number(paySlipData.period_earned).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>
-                                    <div className="flex justify-between mb-1"><span>PERA</span> <span>₱ {Number(paySlipData.pera).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>
-                                    
+                                    <div className="flex justify-between mb-1"><span>Period Earned</span> <span>₱ {Number(paySlipData.period_earned).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+                                    <div className="flex justify-between mb-1"><span>PERA</span> <span>₱ {Number(paySlipData.pera).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+
                                     <div className="flex justify-between font-bold mt-2 pt-2 border-t">
-                                        <span>Gross Pay</span> 
-                                        <span>₱ {(Number(paySlipData.period_earned) + Number(paySlipData.pera)).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                        <span>Period Earned</span>
+                                        <span>₱ {(Number(paySlipData.period_earned) + Number(paySlipData.pera)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
                                 </div>
 
                                 <div>
                                     <h3 className="font-bold text-red-700 border-b pb-1 mb-2">Deductions</h3>
-                                    {Number(paySlipData.life_retirement) > 0 && <div className="flex justify-between mb-1"><span>Life & Ret.</span> <span>₱ {Number(paySlipData.life_retirement).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>}
-                                    {Number(paySlipData.withholding_tax) > 0 && <div className="flex justify-between mb-1"><span>W. Tax</span> <span>₱ {Number(paySlipData.withholding_tax).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>}
-                                    {Number(paySlipData.philhealth) > 0 && <div className="flex justify-between mb-1"><span>Philhealth</span> <span>₱ {Number(paySlipData.philhealth).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>}
-                                    {Number(paySlipData.gsis_mpl) > 0 && <div className="flex justify-between mb-1"><span>GSIS MPL</span> <span>₱ {Number(paySlipData.gsis_mpl).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>}
-                                    {Number(paySlipData.pagibig_premium) > 0 && <div className="flex justify-between mb-1"><span>Pag-IBIG</span> <span>₱ {Number(paySlipData.pagibig_premium).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>}
-                                    {Number(paySlipData.absence_wo_pay) > 0 && <div className="flex justify-between mb-1"><span>Absences</span> <span>₱ {Number(paySlipData.absence_wo_pay).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>}
-                                    {Number(paySlipData.custom_deduction) > 0 && <div className="flex justify-between mb-1"><span>Custom Ded.</span> <span>₱ {Number(paySlipData.custom_deduction).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>}
-                                    {/* You can add more deduction fields here as needed */}
+                                    {Number(paySlipData.gsis_mpl) > 0 && <div className="flex justify-between mb-1"><span>GSIS MPL</span> <span>₱ {Number(paySlipData.gsis_mpl).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>}
+                                    {Number(paySlipData.philhealth) > 0 && <div className="flex justify-between mb-1"><span>Philhealth</span> <span>₱ {Number(paySlipData.philhealth).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>}
+                                    {Number(paySlipData.local_pave) > 0 && <div className="flex justify-between mb-1"><span>Local Pave</span> <span>₱ {Number(paySlipData.local_pave).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>}
+                                    {Number(paySlipData.life_retirement) > 0 && <div className="flex justify-between mb-1"><span>Life & Ret.</span> <span>₱ {Number(paySlipData.life_retirement).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>}
+                                    {Number(paySlipData.pagibig_premium) > 0 && <div className="flex justify-between mb-1"><span>Pag-IBIG Prem.</span> <span>₱ {Number(paySlipData.pagibig_premium).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>}
+                                    {Number(paySlipData.pagibig_mp3) > 0 && <div className="flex justify-between mb-1"><span>Pag-IBIG MP3</span> <span>₱ {Number(paySlipData.pagibig_mp3).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>}
+                                    {Number(paySlipData.pagibig_calamity) > 0 && <div className="flex justify-between mb-1"><span>Pag-IBIG Calamity</span> <span>₱ {Number(paySlipData.pagibig_calamity).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>}
+                                    {Number(paySlipData.city_savings) > 0 && <div className="flex justify-between mb-1"><span>City Savings</span> <span>₱ {Number(paySlipData.city_savings).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>}
+                                    {Number(paySlipData.withholding_tax) > 0 && <div className="flex justify-between mb-1"><span>W. Tax</span> <span>₱ {Number(paySlipData.withholding_tax).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>}
+                                    {Number(paySlipData.absence_wo_pay) > 0 && <div className="flex justify-between mb-1"><span>Absences</span> <span>₱ {Number(paySlipData.absence_wo_pay).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>}
+                                    {Number(paySlipData.cottage_rental) > 0 && <div className="flex justify-between mb-1"><span>Cottage Rental</span> <span>₱ {Number(paySlipData.cottage_rental).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>}
+                                    {Number(paySlipData.essu_ffa) > 0 && <div className="flex justify-between mb-1"><span>ESSU FFA</span> <span>₱ {Number(paySlipData.essu_ffa).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>}
+                                    {Number(paySlipData.custom_deduction) > 0 && <div className="flex justify-between mb-1"><span>{getDeductionName(paySlipData.payroll.deduction)}</span> <span>₱ {Number(paySlipData.custom_deduction).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>}
+                                    {Number(paySlipData.essu_union) > 0 && <div className="flex justify-between mb-1"><span>ESSU Union</span> <span>₱ {Number(paySlipData.essu_union).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>}
+                                    {Number(paySlipData.cfi) > 0 && <div className="flex justify-between mb-1"><span>CFI</span> <span>₱ {Number(paySlipData.cfi).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>}
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-green-700 border-b pb-1 mb-2">Net Amount</h3>
+                                    <div className="flex justify-between mb-1"><span>Total Earned</span> <span>₱ {(Number(paySlipData.period_earned) + Number(paySlipData.pera)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+                                    <div className="flex justify-between mb-1"><span>Total Deduction</span> <span>₱ {getTotalDeduction().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+
+                                    <div className="flex justify-between font-bold mt-2 pt-2 border-t text-lg">
+                                        <span>Net Amount Due</span>
+                                        <span>₱ {((Number(paySlipData.period_earned) + Number(paySlipData.pera)) - getTotalDeduction()).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -406,7 +439,7 @@ export default function Payroll({ flash }) {
                     )}
 
                     <div className='mt-6 flex justify-end'>
-                        <SecondaryButton onClick={() => {setPayslip(false); setPayslip(null)}} disabled={false}>
+                        <SecondaryButton onClick={() => { setPayslip(false); setPayslip(null) }} disabled={false}>
                             Close
                         </SecondaryButton>
                     </div>
