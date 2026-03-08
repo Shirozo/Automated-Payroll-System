@@ -7,7 +7,7 @@ import { useForm } from "@inertiajs/react";
 
 export default function Deduction({ config_data }) {
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } =
+    const { data, setData, put, errors, processing, recentlySuccessful } =
         useForm({
             philhealth: config_data.philhealth,
             local_pave: config_data.local_pave,
@@ -23,7 +23,7 @@ export default function Deduction({ config_data }) {
     const submit = (e) => {
         e.preventDefault();
 
-        patch(route('profile.update'));
+        put(route('configuration.updateDeduction'));
     };
 
     return (
