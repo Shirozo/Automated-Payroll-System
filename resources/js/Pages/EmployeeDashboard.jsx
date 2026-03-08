@@ -9,14 +9,14 @@ export default function EmployeeDashboard() {
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
-    const { attendance } = usePage().props
+    const { attendance, absent, present } = usePage().props
 
     const [attendances, setAttendances] = useState(attendance)
 
     const [hoveredDate, setHoveredDate] = useState(null)
 
     const [dateSelected, setDateSelected] = useState({
-        "month": new Date().getMonth() - 1,
+        "month": new Date().getMonth(),
         "year": new Date().getFullYear()
     })
 
@@ -70,9 +70,8 @@ export default function EmployeeDashboard() {
 
     const { user_data } = usePage().props
     const attendanceStats = [
-        { label: "Present", value: 18, description: "Working days this month" },
-        { label: "Absent", value: 2, description: "Unexcused absences" },
-        { label: "Leave", value: 1, description: "Approved leave days" },
+        { label: "Present", value: present, description: "Working days this month" },
+        { label: "Absent", value: absent, description: "Unexcused absences" },
     ];
     return (
         <AuthenticatedLayout>
@@ -214,21 +213,6 @@ export default function EmployeeDashboard() {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </section>
-
-                        <section className="rounded-lg border border-gray-200 bg-white px-6 py-6">
-                            <h3 className="text-lg font-semibold text-gray-900">Attendance activity</h3>
-                            <div className="mt-4 border-t border-gray-200 pt-4 text-sm text-gray-500">
-                                <p>November 2025</p>
-                                <p className="mt-3 text-gray-600">
-                                    {user_data.user.name} has no activity yet for this period.
-                                </p>
-                            </div>
-                            <div className="mt-6">
-                                <button className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                    Show more activity
-                                </button>
                             </div>
                         </section>
                     </div>
