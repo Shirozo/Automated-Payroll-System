@@ -69,6 +69,10 @@ Route::group(["prefix" => "configuration", "as" => "configuration.", "middleware
     Route::get('/', [ConfigurationController::class, "show"])->name("show");
 
     Route::put("/update/attendance", [ConfigurationController::class, "updateAttendance"])->name("updateAttendance");
+
+    Route::put("/update/compensation", [ConfigurationController::class, "updateCompensation"])->name("updateCompensation");
+
+    Route::put("/update/deduction", [ConfigurationController::class, "updateDeduction"])->name("updateDeduction");
 });
 
 Route::group(["prefix" => "device", "as" => "device.", "middleware" => ['auth']], function () {
