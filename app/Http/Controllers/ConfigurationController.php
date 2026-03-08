@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreConfigurationRequest;
+use App\Http\Requests\UpdateConfigurationDeductionRequest;
 use App\Http\Requests\UpdateConfigurationRequest;
 use App\Http\Requests\UpdateConfigurationRequestAttendance;
 use App\Models\Configuration;
+use Illuminate\Http\Request;
 
 class ConfigurationController extends Controller
 {
@@ -41,17 +43,51 @@ class ConfigurationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateConfigurationRequest $request, Configuration $configuration)
+    public function updateDeduction(UpdateConfigurationDeductionRequest $request)
     {
         //
+        $request->validated();
+        $local_pave = Configuration::where('name', 'local_pave')->first();
+        $pag_ibig_premium = Configuration::where('name', 'pag_ibig_premium')->first();
+        $essu_ffa = Configuration::where('name', 'essu_ffa')->first();
+        $essu_union = Configuration::where('name', 'essu_union')->first();
+
+        $local_pave->update([
+            "value" => $request->local_pave
+        ]);
+
+        $pag_ibig_premium->update([
+            "value" => $request->pag_ibig_premium
+        ]);
+
+        $essu_ffa->update([
+            "value" => $request->essu_ffa
+        ]);
+
+        $essu_union->update([
+            "value" => $request->essu_union
+        ]);
+
+        return redirect()->route("configuration.show")->with('success', 'Configuration updated successfully');
+
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Configuration $configuration)
+    public function updateCompensation(Request $request)
     {
-        //
+        $request->validate([
+            "pera" => "required|integer"
+        ]);
+
+        $pera = Configuration::where('name', 'pera')->first();
+
+        $pera->update([
+            "value" => $request->pera
+        ]);
+
+        return redirect()->route("configuration.show")->with('success', 'Configuration updated successfully');
     }
 
     public function updateAttendance(UpdateConfigurationRequestAttendance $updateConfigurationRequestAttendance)
