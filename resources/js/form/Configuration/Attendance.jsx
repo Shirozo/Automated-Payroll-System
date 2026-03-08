@@ -7,7 +7,7 @@ import { useForm } from "@inertiajs/react";
 
 export default function Attendance({ config_data }) {
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } =
+    const { data, setData, put, errors, processing, recentlySuccessful } =
         useForm({
             morning_login: config_data.morning_login,
             morning_logout: config_data.morning_logout,
@@ -19,7 +19,7 @@ export default function Attendance({ config_data }) {
     const submit = (e) => {
         e.preventDefault();
 
-        patch(route('profile.update'));
+        put(route('configuration.updateAttendance'));
     };
 
     return (
