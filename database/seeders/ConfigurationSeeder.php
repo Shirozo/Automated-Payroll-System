@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Configuration;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ConfigurationSeeder extends Seeder
@@ -29,6 +28,8 @@ class ConfigurationSeeder extends Seeder
             ['name' => 'essu_ffa', 'value' => '20'],
             ['name' => 'retiree_fin_asst', 'value' => 'BS / 30'],
             ['name' => 'essu_union', 'value' => '30'],
+            ['name' => 'death_aid', 'value' => 'BS / 30'],
+            ['name' => 'health_care', 'value' => 'BS / 30 / 4'],
         ];
 
          foreach ($configurations as $config) {
