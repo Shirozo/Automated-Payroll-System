@@ -30,10 +30,15 @@ class DashboardController extends Controller
             ->whereMonth('date', now()->month)
             ->orderBy('date', 'asc')
             ->get();
+                
+        $absent = $attendance->where("tag", "absent")->count();
+        $present = $attendance->where("tag", "present")->count();
 
         return inertia("EmployeeDashboard", [
             "user_data" => $user_data,
-            "attendance" => $attendance
+            "attendance" => $attendance,
+            "absent" => $absent,
+            "present" => $present
         ]);
     }
 }
