@@ -5,7 +5,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { Edit, Eye, EyeClosed, EyeOff, Loader, Loader2, LoaderPinwheel, Paperclip, Power, PowerOff, Printer, Search, Trash2, UploadCloud, View, X } from 'lucide-react';
+import { Edit, Eye, EyeClosed, EyeOff, Loader, Loader2, LoaderPinwheel, Paperclip, Power, PowerOff, Printer, Receipt, Search, Trash2, UploadCloud, View, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import { toast, ToastContainer } from 'react-toastify';
@@ -16,12 +16,15 @@ import DeletePayroll from '@/form/DeletePayroll';
 
 export default function Payroll({ flash }) {
 
-    const { auth, availableDates, payroll } = usePage().props
+    const { auth, availableDates, payroll, employee_id } = usePage().props
 
     const [searchTerm, setSearchTerm] = useState("")
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [isDelOpen, setIsDelOpen] = useState(false)
     const [delId, setDelId] = useState(0)
+
+    const [paySlip, setPayslip] = useState(false)
+    const [paySlipData, setPayslipData] = useState(null)
 
     const {
         data,
@@ -44,6 +47,16 @@ export default function Payroll({ flash }) {
     } = useForm({
         id: "",
     })
+
+    const getPayslip = async (id) => {
+        const response = await fetch(route("payroll.getPaySlip", {
+            payroll: id,
+            employee: employee_id
+        }))
+
+        const data = await response.json()
+        setPayslipData(data)
+    }
 
 
     const availableYears = availableDates ? [...new Set(availableDates.map(d => d.year))].sort((a, b) => a - b) : []
@@ -113,28 +126,41 @@ export default function Payroll({ flash }) {
             name: 'Actions',
             cell: row => (
                 <div className="flex gap-2">
-                    <PrimaryButton
-                        onClick={() => handleView(row.id)}
-                        className="rounded-lg p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                        <Printer className="h-4 w-4" />
-                    </PrimaryButton>
-                    <SecondaryButton
-                        onClick={() => handleVisible(row.id)}
-                        className="rounded-lg p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                        {row.viewable ? (
-                            <Eye className="h-4 w-4" />
-                        ) : (
-                            <EyeOff className="h-4 w-4" />
-                        )}
-                    </SecondaryButton>
-                    <DangerButton
-                        onClick={() => handleDelete(row.id)}
-                        className="rounded-lg p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </DangerButton>
+                    {auth.user.type == 1 ? (
+                        <>
+                            <PrimaryButton
+                                onClick={() => handleView(row.id)}
+                                className="rounded-lg p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                                <Printer className="h-4 w-4" />
+                            </PrimaryButton>
+                            <SecondaryButton
+                                onClick={() => handleVisible(row.id)}
+                                className="rounded-lg p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                                {row.viewable ? (
+                                    <Eye className="h-4 w-4" />
+                                ) : (
+                                    <EyeOff className="h-4 w-4" />
+                                )}
+                            </SecondaryButton>
+                            <DangerButton
+                                onClick={() => handleDelete(row.id)}
+                                className="rounded-lg p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </DangerButton>
+                        </>
+                    ) : (
+                        <PrimaryButton
+                            onClick={() => {
+                                getPayslip(row.id);
+                                setPayslip(true);
+                            }}
+                            className='rounded-lg p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors'>
+                            <Receipt className='h-4 w-4'/>
+                        </PrimaryButton>
+                    )}
                 </div>
             ),
             ignoreRowClick: true,
@@ -327,6 +353,64 @@ export default function Payroll({ flash }) {
                     closeModal={() => setIsDelOpen(false)}
                     onDelSuccess={() => { }}
                 />
+            </Modal>
+
+            <Modal show={paySlip} maxWidth='md'>
+                <div className='p-6'>
+                    <h2 className='text-lg uppercase mb-5 font-medium text-gray-900 border-b pb-2'>
+                        Payslip
+                    </h2>
+                    
+                    {paySlipData ? (
+                        <div className="text-sm">
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <span className="text-gray-500 font-semibold">Days Present / Absent: </span>
+                                    <span>{paySlipData.days_present} / {paySlipData.days_absent}</span>
+                                </div>
+                                <div className="text-right">
+                                    <span className="text-gray-500 font-semibold">Base Rate: </span>
+                                    <span>₱ {Number(paySlipData.rate).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-8 mt-4">
+                                <div>
+                                    <h3 className="font-bold text-green-700 border-b pb-1 mb-2">Earnings</h3>
+                                    <div className="flex justify-between mb-1"><span>Period Earned</span> <span>₱ {Number(paySlipData.period_earned).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>
+                                    <div className="flex justify-between mb-1"><span>PERA</span> <span>₱ {Number(paySlipData.pera).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>
+                                    
+                                    <div className="flex justify-between font-bold mt-2 pt-2 border-t">
+                                        <span>Gross Pay</span> 
+                                        <span>₱ {(Number(paySlipData.period_earned) + Number(paySlipData.pera)).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className="font-bold text-red-700 border-b pb-1 mb-2">Deductions</h3>
+                                    {Number(paySlipData.life_retirement) > 0 && <div className="flex justify-between mb-1"><span>Life & Ret.</span> <span>₱ {Number(paySlipData.life_retirement).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>}
+                                    {Number(paySlipData.withholding_tax) > 0 && <div className="flex justify-between mb-1"><span>W. Tax</span> <span>₱ {Number(paySlipData.withholding_tax).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>}
+                                    {Number(paySlipData.philhealth) > 0 && <div className="flex justify-between mb-1"><span>Philhealth</span> <span>₱ {Number(paySlipData.philhealth).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>}
+                                    {Number(paySlipData.gsis_mpl) > 0 && <div className="flex justify-between mb-1"><span>GSIS MPL</span> <span>₱ {Number(paySlipData.gsis_mpl).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>}
+                                    {Number(paySlipData.pagibig_premium) > 0 && <div className="flex justify-between mb-1"><span>Pag-IBIG</span> <span>₱ {Number(paySlipData.pagibig_premium).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>}
+                                    {Number(paySlipData.absence_wo_pay) > 0 && <div className="flex justify-between mb-1"><span>Absences</span> <span>₱ {Number(paySlipData.absence_wo_pay).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>}
+                                    {Number(paySlipData.custom_deduction) > 0 && <div className="flex justify-between mb-1"><span>Custom Ded.</span> <span>₱ {Number(paySlipData.custom_deduction).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>}
+                                    {/* You can add more deduction fields here as needed */}
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="py-8 text-center text-sm text-gray-500">
+                            Select a record to view payslip data.
+                        </div>
+                    )}
+
+                    <div className='mt-6 flex justify-end'>
+                        <SecondaryButton onClick={() => {setPayslip(false); setPayslip(null)}} disabled={false}>
+                            Close
+                        </SecondaryButton>
+                    </div>
+                </div>
             </Modal>
 
         </AuthenticatedLayout>
