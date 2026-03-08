@@ -44,7 +44,7 @@ export default function DeletePositionForm({ id, closeModal, onDelSuccess }) {
             data will be permanently deleted and all the employee with this
             position will be set to null. Please enter your
             password to confirm you would like to permanently delete
-            your account.
+            this position.
         </p>
 
         <div className="mt-6">
